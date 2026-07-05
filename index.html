@@ -6,6 +6,7 @@
 <title>ACH Fashion Studio — Billing</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 :root{--ink:#1a1410;--ink-soft:#4a3f35;--ink-muted:#8c7d72;--gold:#c9973a;--gold-light:#f0ddb0;--gold-pale:#fdf6e8;--cream:#faf7f2;--white:#fff;--border:#e8ddd0;--danger:#c0392b;--success:#27ae60;--sh:0 1px 4px rgba(26,20,16,.08);--shlg:0 12px 48px rgba(26,20,16,.16)}
@@ -225,6 +226,11 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
 .gen-ov.hidden{display:none}
 .gen-ov-txt{color:#fff;font-size:15px;font-weight:600}
 .gen-ov-sub{color:rgba(255,255,255,.6);font-size:13px}
+/* PHONE INPUT WITH COUNTRY CODE */
+.ph-wrap{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;background:var(--cream);transition:border-color .15s}
+.ph-wrap:focus-within{border-color:var(--gold);background:#fff}
+.ph-cc{background:#f0ece5;border:none;border-right:1.5px solid var(--border);padding:7px 8px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--ink);width:64px;outline:none;text-align:center;flex-shrink:0}
+.ph-num{border:none;background:transparent;padding:7px 10px;font-size:13.5px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -463,6 +469,68 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
             <div class="fg"><label>IFSC Code</label><input id="s-ifsc" placeholder="SBIN0001234"></div>
           </div>
         </div>
+
+        <!-- EmailJS Setup Card -->
+        <div class="scard" style="margin-top:16px;border-color:#4285F4">
+          <div class="scard-t" style="color:#4285F4">✉ Auto Email with PDF — EmailJS Setup</div>
+          <div class="scard-d">EmailJS lets this app send real emails with the PDF attached directly from your browser — <strong>no server needed, free up to 200 emails/month</strong>.</div>
+
+          <!-- Step by step guide -->
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
+            <div style="background:#f0f4ff;border-radius:8px;padding:14px 16px;border-left:3px solid #4285F4">
+              <div style="font-size:12px;font-weight:700;color:#4285F4;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">📋 One-Time Setup Steps</div>
+              <ol style="font-size:12.5px;color:var(--ink-soft);line-height:2;padding-left:18px">
+                <li>Go to <a href="https://www.emailjs.com" target="_blank" style="color:#4285F4;font-weight:600">emailjs.com</a> → Sign up free</li>
+                <li>Click <strong>Email Services</strong> → Add Service → Choose Gmail / Outlook / Yahoo → Connect your studio email → Copy the <strong>Service ID</strong></li>
+                <li>Click <strong>Email Templates</strong> → Create Template → Use the template below → Copy the <strong>Template ID</strong></li>
+                <li>Click your name (top right) → <strong>Account</strong> → Copy the <strong>Public Key</strong></li>
+                <li>Paste all three below → Click Save Settings</li>
+              </ol>
+            </div>
+
+            <!-- Template helper -->
+            <div style="background:#faf7f2;border-radius:8px;padding:14px 16px;border:1.5px dashed var(--border)">
+              <div style="font-size:11px;font-weight:700;color:var(--ink-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">📝 EmailJS Template — Copy & Paste This</div>
+              <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink);line-height:1.8;white-space:pre-wrap;background:#fff;border-radius:6px;padding:12px;border:1px solid var(--border)">Subject: {{subject}}
+
+Dear {{to_name}},
+
+{{message}}
+
+Regards,
+{{from_name}}
+{{studio_phone}}</div>
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:8px">⚠ In the template, set <strong>To Email</strong> field to: <code style="background:#f0f4ff;padding:2px 6px;border-radius:4px">{{to_email}}</code></div>
+            </div>
+
+            <!-- Credentials input -->
+            <div class="g2" style="margin-top:4px">
+              <div class="fg full">
+                <label>EmailJS Public Key</label>
+                <input id="s-ejs-pubkey" placeholder="user_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">Found in: Account → General → Public Key</div>
+              </div>
+              <div class="fg">
+                <label>Service ID</label>
+                <input id="s-ejs-service" placeholder="service_xxxxxxx" autocomplete="off">
+                <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">Email Services tab</div>
+              </div>
+              <div class="fg">
+                <label>Template ID</label>
+                <input id="s-ejs-template" placeholder="template_xxxxxxx" autocomplete="off">
+                <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">Email Templates tab</div>
+              </div>
+            </div>
+
+            <!-- Status + Test -->
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <div id="ejs-status" style="flex:1;font-size:13px;padding:8px 14px;border-radius:8px;background:var(--cream);color:var(--ink-muted);border:1.5px solid var(--border)">
+                ○ Not configured — enter credentials above
+              </div>
+              <button class="btn bp" onclick="testEmailJS()">🧪 Send Test Email</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- DATA & BACKUP -->
@@ -522,7 +590,9 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
         <div class="secl">Customer Information</div>
         <div class="g2">
           <div class="fg"><label>Customer Name *</label><input id="f-cname" placeholder="Priya Sharma" list="cust-dl"><datalist id="cust-dl"></datalist></div>
-          <div class="fg"><label>Contact No.</label><input id="f-cphone" placeholder="+91 98765 43210"></div>
+          <div class="fg"><label>Contact No.</label>
+            <div class="ph-wrap"><input class="ph-cc" id="f-ccc" value="+91" maxlength="5" title="Country code"><input class="ph-num" id="f-cphone" placeholder="98765 43210" type="tel" inputmode="numeric"></div>
+          </div>
           <div class="fg full"><label>Address</label><textarea id="f-caddr" rows="2"></textarea></div>
         </div>
         <hr class="dv">
@@ -593,7 +663,9 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
       <div class="g3" style="margin-bottom:4px">
         <div class="fg"><label>S.No.</label><input id="mm-sno" placeholder="600"></div>
         <div class="fg"><label>Customer Name *</label><input id="mm-name" placeholder="Priya Sharma" list="cust-dl2"><datalist id="cust-dl2"></datalist></div>
-        <div class="fg"><label>Contact No.</label><input id="mm-phone" placeholder="+91 …"></div>
+        <div class="fg"><label>Contact No.</label>
+            <div class="ph-wrap"><input class="ph-cc" id="mm-ccc" value="+91" maxlength="5" title="Country code"><input class="ph-num" id="mm-phone" placeholder="98765 43210" type="tel" inputmode="numeric"></div>
+          </div>
         <div class="fg"><label>Date</label><input type="date" id="mm-date"></div>
         <div class="fg"><label>Trial Date</label><input type="date" id="mm-trial"></div>
         <div class="fg"><label>Delivery Date</label><input type="date" id="mm-delivery"></div>
@@ -668,7 +740,9 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
     <div class="mb">
       <div class="g2">
         <div class="fg"><label>Name *</label><input id="cn-name" placeholder="Priya Sharma"></div>
-        <div class="fg"><label>Phone</label><input id="cn-phone" placeholder="+91 …"></div>
+        <div class="fg"><label>Phone</label>
+        <div class="ph-wrap"><input class="ph-cc" id="cn-ccc" value="+91" maxlength="5" title="Country code"><input class="ph-num" id="cn-phone" placeholder="98765 43210" type="tel" inputmode="numeric"></div>
+      </div>
         <div class="fg full"><label>Address</label><textarea id="cn-addr" rows="2"></textarea></div>
       </div>
     </div>
@@ -772,6 +846,7 @@ async function init(){
     upi:'', gpay:'', bank:'', accname:'', accno:'', ifsc:''
   };
   loadSet(); renderList(); renderMeas(); renderCust(); renderProd(); renderReports(); updateStats(); updateBadges(); updateDLs();
+  initEmailJS();
   }
 init();
 
@@ -850,6 +925,7 @@ function openNewInvoice(){
   document.getElementById('f-designer').value='';
   document.getElementById('f-preparedby').value='';
   ['f-cname','f-cphone','f-caddr','f-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const fcc=document.getElementById('f-ccc');if(fcc)fcc.value='+91';
   document.getElementById('f-advance').value=0;
   document.getElementById('items-body').innerHTML='';
   addRow(); calcTotals();
@@ -869,7 +945,9 @@ function openEdit(id){
   document.getElementById('f-designer').value=inv.designer||'';
   document.getElementById('f-preparedby').value=inv.preparedby||'';
   document.getElementById('f-cname').value=inv.custName||'';
-  document.getElementById('f-cphone').value=inv.custPhone||'';
+  const {cc:_fcc,num:_fnum}=splitPhone(inv.custPhone||'');
+  const fccEl=document.getElementById('f-ccc');if(fccEl)fccEl.value=_fcc;
+  document.getElementById('f-cphone').value=_fnum;
   document.getElementById('f-caddr').value=inv.custAddr||'';
   document.getElementById('f-advance').value=inv.advance||0;
   document.getElementById('f-notes').value=inv.notes||'';
@@ -937,7 +1015,7 @@ async function saveInvoice(mode){
     designer:document.getElementById('f-designer').value.trim(),
     preparedby:document.getElementById('f-preparedby').value.trim(),
     custName:document.getElementById('f-cname').value.trim(),
-    custPhone:document.getElementById('f-cphone').value.trim(),
+    custPhone:getInvPhone(),
     custAddr:document.getElementById('f-caddr').value.trim(),
     advance:t.adv, grand:t.grand, balance:t.bal,
     notes:document.getElementById('f-notes').value.trim(),
@@ -981,7 +1059,7 @@ function buildObj(){
     designer:document.getElementById('f-designer').value,
     preparedby:document.getElementById('f-preparedby').value,
     custName:document.getElementById('f-cname').value,
-    custPhone:document.getElementById('f-cphone').value,
+    custPhone:getInvPhone(),
     custAddr:document.getElementById('f-caddr').value,
     advance:t.adv, grand:t.grand, balance:t.bal,
     notes:document.getElementById('f-notes').value,
@@ -1129,6 +1207,7 @@ function openMeasureNew(){
   document.getElementById('mm-trial').value='';
   document.getElementById('mm-delivery').value='';
   ['mm-name','mm-phone','mm-bagno','mm-designer','mm-preparedby','mm-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const mmcc=document.getElementById('mm-ccc');if(mmcc)mmcc.value='+91';
   const mIds=['m-length','m-chest','m-underchest','m-waist','m-hip','m-chaklength','m-sleeves','m-armhole','m-frontneck','m-shoulder','m-chestpoint','m-chestspan','m-waistpoint','m-hiplength','m-sleeveloosing','m-daman','m-backneck','p-length','p-hip','p-knee','p-sheet','p-waist','p-thigh','p-bottom'];
   mIds.forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   openModal('meas-modal'); updateDLs();
@@ -1140,7 +1219,9 @@ function openMeasEdit(id){
   document.getElementById('mm-sub').textContent=m.custName||'';
   document.getElementById('mm-sno').value=m.sno||'';
   document.getElementById('mm-name').value=m.custName||'';
-  document.getElementById('mm-phone').value=m.custPhone||'';
+  const {cc:_mcc,num:_mnum}=splitPhone(m.custPhone||'');
+  const mmccEl=document.getElementById('mm-ccc');if(mmccEl)mmccEl.value=_mcc;
+  document.getElementById('mm-phone').value=_mnum;
   document.getElementById('mm-date').value=m.date||today();
   document.getElementById('mm-trial').value=m.trial||'';
   document.getElementById('mm-delivery').value=m.delivery||'';
@@ -1164,7 +1245,7 @@ function getMeasObj(){
     id:editMId||uid(),
     sno:document.getElementById('mm-sno').value,
     custName:document.getElementById('mm-name').value.trim(),
-    custPhone:document.getElementById('mm-phone').value.trim(),
+    custPhone:getMeasPhone(),
     date:document.getElementById('mm-date').value,
     trial:document.getElementById('mm-trial').value,
     delivery:document.getElementById('mm-delivery').value,
@@ -1483,7 +1564,10 @@ function renderCust(){
 async function saveCustomer(){
   const name=document.getElementById('cn-name').value.trim();
   if(!name){toast('⚠ Name required','');return;}
-  customers.push({id:uid(),name,phone:document.getElementById('cn-phone').value.trim(),addr:document.getElementById('cn-addr').value.trim()});
+  const cncc=(document.getElementById('cn-ccc')?.value||'+91');
+  const cnnum=(document.getElementById('cn-phone')?.value||'').trim();
+  const cnphone=buildFullPhone(cncc,cnnum);
+  customers.push({id:uid(),name,phone:cnphone,addr:document.getElementById('cn-addr').value.trim()});
   await autosave('ach_cust',customers);
   closeModal('cust-modal'); renderCust(); updateDLs(); toast('✓ Customer saved','gold');
 }
@@ -1516,20 +1600,215 @@ async function delProd(id){
 }
 
 // ── AUTO-SAVE HELPER ──
-// Central save function - called whenever data changes
 async function autosave(key, data){
+  try{ await window.storage.set(key, JSON.stringify(data)); }
+  catch(e){ console.error('Autosave failed:', key, e); }
+}
+
+// ── PHONE HELPERS ──
+// Split a stored full phone (e.g. "919876543210" or "+919876543210") back into {cc, num}
+// Supports common country codes 1-4 digits. Default country code is +91 (India)
+function splitPhone(full){
+  const digits = (full||'').replace(/[^0-9]/g,'');
+  if(!digits) return {cc:'+91', num:''};
+  // Common codes to try (longest first so +1 doesn't eat into +91)
+  const codes = ['44','49','61','64','65','66','81','82','86','91','92','93','94','95','971','972','973','974','975','1','7'];
+  for(const c of codes){
+    if(digits.startsWith(c)){
+      return {cc:'+'+c, num:digits.slice(c.length)};
+    }
+  }
+  return {cc:'+91', num:digits};
+}
+
+// Build full international number from (cc, num) — strips everything except digits then prepends cc digits
+function buildFullPhone(cc, num){
+  const ccDigits = (cc||'+91').replace(/\D/g,'');       // e.g. "91"
+  const numDigits = (num||'').replace(/\D/g,'');         // e.g. "9876543210"
+  if(!numDigits) return '';
+  // If num already starts with cc digits, don't double-add
+  if(numDigits.startsWith(ccDigits)) return numDigits;
+  return ccDigits + numDigits;
+}
+
+// Get full phone from invoice form
+function getInvPhone(){
+  const cc  = document.getElementById('f-ccc')?.value  || '+91';
+  const num = document.getElementById('f-cphone')?.value|| '';
+  return buildFullPhone(cc, num);
+}
+// Get full phone from measurement form
+function getMeasPhone(){
+  const cc  = document.getElementById('mm-ccc')?.value  || '+91';
+  const num = document.getElementById('mm-phone')?.value || '';
+  return buildFullPhone(cc, num);
+}
+// Get full phone from saved object (already stored as full number)
+function getObjPhone(obj){
+  return (obj.custPhone||obj.phone||'').replace(/\D/g,'');
+}
+
+// Open WhatsApp directly to a number (deep link on mobile, wa.me on desktop)
+function openWhatsApp(fullPhone, message){
+  if(!fullPhone){ toast('⚠ No phone number entered',''); return; }
+  const enc = encodeURIComponent(message||'');
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isMobile){
+    // Try whatsapp:// deep link first — opens the app directly, no share sheet
+    const deepLink = 'whatsapp://send?phone=' + fullPhone + '&text=' + enc;
+    // Fallback to wa.me after 1.5s if app not installed
+    const waLink   = 'https://wa.me/' + fullPhone + '?text=' + enc;
+    // Create hidden iframe to try deep link (avoids "app not found" error on some devices)
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    iframe.src = deepLink;
+    // Fallback timer — if WhatsApp didn't open, open wa.me
+    const timer = setTimeout(()=>{ window.open(waLink,'_blank'); }, 1500);
+    // If page loses focus, WhatsApp opened — cancel fallback
+    window.addEventListener('blur', ()=>clearTimeout(timer), {once:true});
+    setTimeout(()=>document.body.removeChild(iframe), 3000);
+  } else {
+    // Desktop: wa.me link opens WhatsApp Web
+    window.open('https://wa.me/' + fullPhone + '?text=' + enc, '_blank');
+  }
+}
+
+// ── EMAILJS ENGINE ──
+let _ejsReady = false;
+
+function initEmailJS(){
+  const k = settings.ejsPubKey;
+  if(!k){ _ejsReady=false; return; }
   try{
-    await window.storage.set(key, JSON.stringify(data));
-  }catch(e){ console.error('Autosave failed:', key, e); }
+    emailjs.init({publicKey: k});
+    _ejsReady = true;
+    console.log('EmailJS initialised');
+  }catch(e){
+    _ejsReady = false;
+    console.error('EmailJS init failed:', e);
+  }
+}
+
+function updateEJSStatus(){
+  const el = document.getElementById('ejs-status');
+  if(!el) return;
+  const k  = (document.getElementById('s-ejs-pubkey')?.value||settings.ejsPubKey||'').trim();
+  const sv = (document.getElementById('s-ejs-service')?.value||settings.ejsService||'').trim();
+  const tm = (document.getElementById('s-ejs-template')?.value||settings.ejsTemplate||'').trim();
+  if(k && sv && tm){
+    el.style.background='#e8f8ee'; el.style.color='#27ae60'; el.style.borderColor='#a8e6be';
+    el.textContent='✓ Configured — emails will be sent with PDF attached';
+  } else if(k || sv || tm){
+    el.style.background='#fff3e0'; el.style.color='#e67e22'; el.style.borderColor='#fad4a0';
+    el.textContent='⚠ Partially configured — fill in all three fields';
+  } else {
+    el.style.background='var(--cream)'; el.style.color='var(--ink-muted)'; el.style.borderColor='var(--border)';
+    el.textContent='○ Not configured — enter credentials above';
+  }
+}
+document.addEventListener('input', e=>{
+  if(['s-ejs-pubkey','s-ejs-service','s-ejs-template'].includes(e.target.id)) updateEJSStatus();
+});
+
+async function testEmailJS(){
+  const k  = gv('s-ejs-pubkey')  || settings.ejsPubKey  || '';
+  const sv = gv('s-ejs-service') || settings.ejsService || '';
+  const tm = gv('s-ejs-template')|| settings.ejsTemplate|| '';
+  const em = gv('s-email')       || settings.email       || '';
+  if(!k||!sv||!tm){ toast('⚠ Fill in Public Key, Service ID and Template ID first',''); return; }
+  if(!em){ toast('⚠ Add your studio email in Studio Info tab first',''); return; }
+  showGenOverlay(true,'Sending test email…','Connecting to EmailJS…');
+  try{
+    emailjs.init({publicKey:k});
+    await emailjs.send(sv, tm, {
+      to_email:   em,
+      to_name:    'Studio Owner',
+      from_name:  settings.name||'ACH Fashion Studio',
+      studio_phone: settings.phone||'',
+      subject:    'Test Email — ACH Fashion Studio',
+      message:    'This is a test email from your ACH Fashion Studio billing app. EmailJS is working correctly!',
+      attachment_name: '',
+      attachment:  ''
+    });
+    showGenOverlay(false);
+    toast('✓ Test email sent to '+em,'gold');
+    const el=document.getElementById('ejs-status');
+    if(el){el.style.background='#e8f8ee';el.style.color='#27ae60';el.style.borderColor='#a8e6be';el.textContent='✓ Working — test email sent to '+em;}
+  }catch(err){
+    showGenOverlay(false);
+    toast('✗ Email failed: '+( err.text||err.message||JSON.stringify(err)),'');
+    console.error('EmailJS test error:',err);
+  }
+}
+
+// Convert PDF blob to base64
+async function blobToBase64(blob){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=rej;
+    r.readAsDataURL(blob);
+  });
+}
+
+// Core send function — generates PDF, attaches as base64, sends via EmailJS
+async function sendEmailWithPDF(toEmail, toName, subject, messageBody, pdfBlob, pdfFilename){
+  if(!_ejsReady){
+    // Try to init with saved settings
+    initEmailJS();
+    if(!_ejsReady){
+      toast('⚠ EmailJS not configured — go to Settings → Payment','');
+      return false;
+    }
+  }
+  const svc = settings.ejsService  || '';
+  const tmpl= settings.ejsTemplate || '';
+  if(!svc||!tmpl){
+    toast('⚠ EmailJS Service ID or Template ID missing','');
+    return false;
+  }
+  if(!toEmail){
+    toast('⚠ No customer email address — add it in the invoice','');
+    return false;
+  }
+  try{
+    showGenOverlay(true,'Sending email…','Attaching PDF and sending to '+toEmail);
+    let b64='', fname='';
+    if(pdfBlob){
+      b64    = await blobToBase64(pdfBlob);
+      fname  = pdfFilename||'document.pdf';
+    }
+    const params = {
+      to_email:        toEmail,
+      to_name:         toName||'Customer',
+      from_name:       settings.name||'ACH Fashion Studio',
+      studio_phone:    settings.phone||'',
+      subject:         subject,
+      message:         messageBody,
+      attachment_name: fname,
+      attachment:      b64          // base64 string; EmailJS template must reference {{attachment}}
+    };
+    await emailjs.send(svc, tmpl, params);
+    showGenOverlay(false);
+    toast('✓ Email with PDF sent to '+toEmail,'gold');
+    return true;
+  }catch(err){
+    showGenOverlay(false);
+    const msg = err.text||err.message||JSON.stringify(err);
+    toast('✗ Email failed: '+msg,'');
+    console.error('EmailJS send error:',err);
+    return false;
+  }
 }
 
 // ── INVOICE ACTIONS ──
 function doPDF(){ const inv=buildObj(); openPDFPreview(buildInvHTML(inv),'Invoice '+inv.invNum, inv.custName||settings.name, invCtx(inv)); }
 function pdfById(id){ const inv=invoices.find(i=>i.id===id); if(!inv)return; openPDFPreview(buildInvHTML(inv),'Invoice '+inv.invNum, inv.custName, invCtx(inv)); }
 function doWhatsApp(){ sendWA(buildObj()); }
-function doEmail(){ const inv=buildObj(); mailInv(inv); }
+async function doEmail(){ const inv=buildObj(); await mailInv(inv); }
 function waById(id){ const inv=invoices.find(i=>i.id===id); if(inv)sendWA(inv); }
-function mailById(id){ const inv=invoices.find(i=>i.id===id); if(inv)mailInv(inv); }
+async function mailById(id){ const inv=invoices.find(i=>i.id===id); if(inv) await mailInv(inv); }
 
 function invCtx(inv){
   return {type:'invoice',obj:inv,custPhone:inv.custPhone,custEmail:inv.custEmail,custName:inv.custName,
@@ -1538,13 +1817,30 @@ function invCtx(inv){
     emailBody:buildInvEmailBody(inv)};
 }
 function sendWA(inv){
-  const ph=(inv.custPhone||'').replace(/\D/g,'');
-  const waNum=settings.waphone||ph||'';
-  if(!waNum){toast('⚠ No phone number set','');return;}
-  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(buildInvWAMsg(inv)),'_blank');
+  const ph = getObjPhone(inv) || (settings.waphone||'').replace(/\D/g,'');
+  openWhatsApp(ph, buildInvWAMsg(inv));
 }
-function mailInv(inv){
-  window.open('mailto:'+(inv.custEmail||'')+'?subject='+encodeURIComponent((settings.name||'ACH Fashion Studio')+' — Invoice '+inv.invNum)+'&body='+encodeURIComponent(buildInvEmailBody(inv)),'_blank');
+async function mailInv(inv){
+  const subj = (settings.name||'ACH Fashion Studio')+' \u2014 Invoice '+inv.invNum;
+  const body = buildInvEmailBody(inv);
+  const em   = inv.custEmail||'';
+  // If EmailJS configured — generate PDF and send with attachment
+  if(_ejsReady && settings.ejsService && settings.ejsTemplate && em){
+    const html  = buildInvHTML(inv);
+    const title = 'Invoice_'+inv.invNum;
+    // Temporarily load into preview iframe to render
+    const iframe=document.getElementById('pdf-iframe');
+    const safe=html.replace(/<script>window\.onload[^<]*<\/script>/g,'');
+    const d=iframe.contentDocument||iframe.contentWindow.document;
+    d.open();d.write(safe);d.close();
+    _pdfHTML=html; _lastPdfFilename=title+'.pdf'; _lastPdfBlob=null;
+    await new Promise(r=>setTimeout(r,400));
+    const blob=await generatePDFBlob();
+    await sendEmailWithPDF(em, inv.custName||'Customer', subj, body, blob, _lastPdfFilename);
+    return;
+  }
+  // Fallback: mailto
+  window.open('mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
 }
 function buildInvWAMsg(inv){
   const pay=[];
@@ -1593,11 +1889,31 @@ function printMeasById(id){
   openPDFPreview(buildMeasHTML(m),'Measurement Card — '+m.custName,'S.No. '+m.sno, measCtx(m));
 }
 function doMeasWhatsApp(){ const m=getMeasObj(); if(!m.custName){toast('\u26a0 Enter name','');return;} waMeas(m); }
-function doMeasEmail(){ const m=getMeasObj(); if(!m.custName){toast('\u26a0 Enter name','');return;} mailMeas(m); }
+async function doMeasEmail(){ const m=getMeasObj(); if(!m.custName){toast('\u26a0 Enter name','');return;} await mailMeas(m); }
 function waMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)waMeas(m); }
-function mailMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)mailMeas(m); }
-function waMeas(m){ const ph=(m.custPhone||'').replace(/\D/g,''); const n=settings.waphone||ph||''; if(!n){toast('\u26a0 No phone number','');return;} window.open('https://wa.me/'+n+'?text='+encodeURIComponent(buildMeasWAMsg(m)),'_blank'); }
-function mailMeas(m){ window.open('mailto:?subject='+encodeURIComponent((settings.name||'ACH Fashion Studio')+' \u2014 Measurement Card')+'&body='+encodeURIComponent(buildMeasEmailBody(m)),'_blank'); }
+async function mailMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)await mailMeas(m); }
+function waMeas(m){
+  const ph = getObjPhone(m) || (settings.waphone||'').replace(/\D/g,'');
+  openWhatsApp(ph, buildMeasWAMsg(m));
+}
+async function mailMeas(m){
+  const subj = (settings.name||'ACH Fashion Studio')+' \u2014 Measurement Card';
+  const body = buildMeasEmailBody(m);
+  // If EmailJS configured — generate PDF and send with attachment
+  if(_ejsReady && settings.ejsService && settings.ejsTemplate){
+    const html  = buildMeasHTML(m);
+    const safe  = html.replace(/<script>window\.onload[^<]*<\/script>/g,'');
+    const iframe= document.getElementById('pdf-iframe');
+    const d=iframe.contentDocument||iframe.contentWindow.document;
+    d.open();d.write(safe);d.close();
+    _pdfHTML=html; _lastPdfFilename='Measurement_'+m.custName.replace(/\s+/g,'_')+'.pdf'; _lastPdfBlob=null;
+    await new Promise(r=>setTimeout(r,400));
+    const blob=await generatePDFBlob();
+    await sendEmailWithPDF('', m.custName||'Customer', subj, body, blob, _lastPdfFilename);
+    return;
+  }
+  window.open('mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
+}
 function measCtx(m){
   return {type:'measurement',obj:m,custPhone:m.custPhone,custEmail:'',custName:m.custName,
     waMsg:buildMeasWAMsg(m),
@@ -1772,27 +2088,34 @@ async function pdfShareWhatsApp(){
     }
   }
 
-  // Download PDF first, then open WA with message
+  // Download PDF first, then open WhatsApp directly
   await pdfDownload();
   setTimeout(()=>{
-    const url='https://wa.me/'+(n||'')+'?text='+encodeURIComponent(msg);
-    window.open(url,'_blank');
+    openWhatsApp(n, msg);
     if(window.innerWidth<=768){
-      toast('\u2713 PDF saved! Now attach it in WhatsApp','gold');
+      toast('\u2713 PDF saved! Attach it in WhatsApp','gold');
     }
-  },800);
+  },900);
 }
 
 async function pdfShareEmail(){
   if(!_pdfCtx)return;
-  const em=_pdfCtx.custEmail||'';
-  const subj=_pdfCtx.emailSubject||'';
-  const body=_pdfCtx.emailBody||'';
+  const em   = _pdfCtx.custEmail||'';
+  const subj = _pdfCtx.emailSubject||'';
+  const body = _pdfCtx.emailBody||'';
 
-  // Try Web Share API with file first
+  // ── PATH 1: EmailJS (real attached PDF) ──
+  if(_ejsReady && settings.ejsService && settings.ejsTemplate){
+    const blob = await generatePDFBlob();
+    const ok   = await sendEmailWithPDF(em, _pdfCtx.custName||'Customer', subj, body, blob, _lastPdfFilename);
+    if(ok) return;
+    // If EmailJS fails, fall through to next option
+  }
+
+  // ── PATH 2: Web Share API with file (Android/iOS native) ──
   if(navigator.canShare){
     try{
-      showGenOverlay(true,'Preparing PDF…','Getting your document ready to share…');
+      showGenOverlay(true,'Preparing PDF…','Getting document ready to share…');
       const blob=await generatePDFBlob();
       showGenOverlay(false);
       if(blob){
@@ -1808,13 +2131,13 @@ async function pdfShareEmail(){
     }
   }
 
-  // Download PDF first, then open email client
+  // ── PATH 3: Download PDF + mailto fallback ──
   await pdfDownload();
   setTimeout(()=>{
     window.open('mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
-    if(window.innerWidth<=768){
-      toast('\u2713 PDF saved! Now attach it in your Email app','gold');
-    }
+    toast(window.innerWidth<=768
+      ? '\u2713 PDF saved — attach it in your Email app'
+      : '\u2713 PDF saved — attach it to the email that just opened','gold');
   },800);
 }
 
@@ -1917,6 +2240,8 @@ function loadSet(){
   sv('s-cardstamp',s.cardstamp||'EXCLUSIVE FASHION');
   sv('s-upi',s.upi);sv('s-gpay',s.gpay);sv('s-bank',s.bank);
   sv('s-accname',s.accname);sv('s-accno',s.accno);sv('s-ifsc',s.ifsc);
+  sv('s-ejs-pubkey',s.ejsPubKey);sv('s-ejs-service',s.ejsService);sv('s-ejs-template',s.ejsTemplate);
+  updateEJSStatus();
 }
 function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
 function gc(id){const e=document.getElementById(id);return e?e.checked:false}
@@ -1935,9 +2260,12 @@ async function saveSettings(){
     cardtitle:gv('s-cardtitle')||'ESTIMATE',cardbrand:gv('s-cardbrand')||'ANSH FASHION STUDIO',
     cardaddr:gv('s-cardaddr'),cardstamp:gv('s-cardstamp')||'EXCLUSIVE FASHION',
     upi:gv('s-upi'),gpay:gv('s-gpay'),bank:gv('s-bank'),
-    accname:gv('s-accname'),accno:gv('s-accno'),ifsc:gv('s-ifsc')
+    accname:gv('s-accname'),accno:gv('s-accno'),ifsc:gv('s-ifsc'),
+    ejsPubKey:gv('s-ejs-pubkey'),ejsService:gv('s-ejs-service'),ejsTemplate:gv('s-ejs-template')
   };
   await autosave('ach_set',settings);
+  initEmailJS();
+  updateEJSStatus();
   toast('\u2713 Settings saved','gold');
 }
 function syncColor(type){
@@ -2062,11 +2390,20 @@ window.addEventListener('resize',()=>{
 document.addEventListener('change',e=>{
   if(e.target.id==='f-cname'){
     const c=customers.find(x=>x.name===e.target.value);
-    if(c){document.getElementById('f-cphone').value=c.phone||'';document.getElementById('f-caddr').value=c.addr||'';}
+    if(c){
+      const {cc:_ic,num:_in}=splitPhone(c.phone||'');
+      const icEl=document.getElementById('f-ccc');if(icEl)icEl.value=_ic;
+      document.getElementById('f-cphone').value=_in;
+      document.getElementById('f-caddr').value=c.addr||'';
+    }
   }
   if(e.target.id==='mm-name'){
     const c=customers.find(x=>x.name===e.target.value);
-    if(c){document.getElementById('mm-phone').value=c.phone||'';}
+    if(c){
+      const {cc:_ac,num:_an}=splitPhone(c.phone||'');
+      const acEl=document.getElementById('mm-ccc');if(acEl)acEl.value=_ac;
+      document.getElementById('mm-phone').value=_an;
+    }
   }
 });
 function fmt(n){return Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
