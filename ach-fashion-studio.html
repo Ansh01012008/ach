@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACH Fashion Studio — Billing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root{--ink:#1a1410;--ink-soft:#4a3f35;--ink-muted:#8c7d72;--gold:#c9973a;--gold-light:#f0ddb0;--gold-pale:#fdf6e8;--cream:#faf7f2;--white:#fff;--border:#e8ddd0;--danger:#c0392b;--success:#27ae60;--sh:0 1px 4px rgba(26,20,16,.08);--shlg:0 12px 48px rgba(26,20,16,.16)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+.app-hd{background:var(--ink);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.3)}
+.brand{display:flex;align-items:center;gap:12px}
+.bmark{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:18px;color:var(--ink);font-weight:700}
+.bname{font-family:'DM Serif Display',serif;font-size:18px;color:#fff}
+.bsub{font-size:11px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-weight:500}
+.layout{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{background:#fff;border-right:1px solid var(--border);padding:18px 0;display:flex;flex-direction:column}
+.ss{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-muted);padding:0 18px;margin:14px 0 5px}
+.sb{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:13.5px;font-weight:500;color:var(--ink-soft);cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:all .15s;border-left:3px solid transparent;font-family:'DM Sans',sans-serif}
+.sb:hover{background:var(--gold-pale);color:var(--ink)}
+.sb.active{background:var(--gold-pale);color:var(--gold);border-left-color:var(--gold);font-weight:600}
+.ibadge{margin-left:auto;background:var(--gold);color:var(--ink);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:20px;text-align:center}
+.main{padding:26px 30px;overflow-y:auto}
+.ph{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.pt{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ink)}
+.ps{font-size:13px;color:var(--ink-muted);margin-top:2px}
+.srow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.sc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--sh)}
+.slbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:5px}
+.sval{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--ink)}
+.sval.gold{color:var(--gold)}
+.sbar{width:28px;height:3px;background:var(--gold);border-radius:2px;margin-top:8px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s}
+.bp{background:var(--gold);color:var(--ink)}.bp:hover{background:#b8862e}
+.bs{background:#fff;color:var(--ink);border:1.5px solid var(--border)}.bs:hover{background:var(--cream);border-color:var(--gold)}
+.bg{background:transparent;color:var(--ink-soft);border:1.5px solid var(--border)}.bg:hover{background:var(--cream)}
+.bd{background:#fdf0ef;color:var(--danger);border:1.5px solid #f5c6c2}.bd:hover{background:#fce4e2}
+.bw{background:#25D366;color:#fff}.bw:hover{background:#1da851}
+.bsm{padding:5px 11px;font-size:12px}
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--sh);overflow:hidden}
+.toolbar{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;border-bottom:1px solid var(--border)}
+.srch{display:flex;align-items:center;gap:7px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:7px 11px;width:220px}
+.srch input{border:none;background:none;outline:none;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--ink);width:100%}
+.srch input::placeholder{color:var(--ink-muted)}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--cream);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted);padding:9px 13px;text-align:left;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--gold-pale)}
+tbody td{padding:11px 13px;font-size:13px;color:var(--ink)}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.paid{background:#e8f8ee;color:var(--success)}
+.pending{background:#fff3e0;color:#e67e22}
+.draft{background:var(--cream);color:var(--ink-muted)}
+/* OVERLAY */
+.ov{position:fixed;inset:0;background:rgba(26,20,16,.55);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;backdrop-filter:blur(2px)}
+.ov.hidden{display:none}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:880px;box-shadow:var(--shlg);overflow:hidden;margin:auto}
+.mhd{background:var(--ink);padding:18px 26px;display:flex;align-items:center;justify-content:space-between}
+.mt{font-family:'DM Serif Display',serif;font-size:19px;color:#fff}
+.msub{font-size:11px;color:var(--gold);margin-top:2px}
+.mx{background:rgba(255,255,255,.12);border:none;color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center}
+.mx:hover{background:rgba(255,255,255,.22)}
+.mb{padding:24px}
+.mft{padding:14px 24px;background:var(--cream);border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap}
+/* FORM */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:13px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:13px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg.full{grid-column:1/-1}
+label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-muted)}
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--ink);background:var(--cream);border:1.5px solid var(--border);border-radius:7px;padding:7px 11px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--gold);background:#fff}
+textarea{resize:vertical;min-height:58px}
+.secl{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:18px 0 11px;display:flex;align-items:center;gap:8px}
+.secl::after{content:'';flex:1;height:1px;background:var(--gold-light)}
+hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
+/* ITEMS */
+.iw{border:1.5px solid var(--border);border-radius:9px;overflow:hidden}
+.iw table thead th{font-size:9.5px;padding:6px 8px}
+.iw table tbody td{padding:4px 6px}
+.iw table tbody td input,.iw table tbody td select{padding:5px 7px;font-size:12.5px;border-radius:6px;width:100%;background:#fff}
+.delbtn{background:none;border:none;color:var(--ink-muted);cursor:pointer;font-size:14px;padding:3px;border-radius:4px;transition:all .12s}
+.delbtn:hover{color:var(--danger);background:#fdf0ef}
+.addrow{padding:8px 11px;background:var(--cream);border-top:1px solid var(--border)}
+.addrow button{font-size:12.5px;color:var(--gold);font-weight:600;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+/* TOTALS */
+.totbox{background:var(--cream);border:1.5px solid var(--border);border-radius:9px;padding:13px 16px;margin-top:13px}
+.trow{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:var(--ink-soft)}
+.trow.grand{font-size:15px;font-weight:700;color:var(--ink);border-top:1.5px solid var(--border);margin-top:7px;padding-top:8px}
+.trow .v{font-family:'DM Mono',monospace}
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--ink-soft);font-family:'DM Sans',sans-serif;transition:all .15s}
+.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tp{display:none}.tp.active{display:block}
+/* MEASUREMENT FORM */
+.msec{background:var(--cream);border:1.5px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.msec-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.mfield{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(232,221,208,.5)}
+.mfield:last-child{border-bottom:none}
+.mflbl{font-size:13px;color:var(--ink-soft);min-width:140px}
+.mfinput{width:120px;padding:5px 9px;font-size:13px;border:1.5px solid var(--border);border-radius:6px;background:#fff;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none}
+.mfinput:focus{border-color:var(--gold)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}
+/* PREVIEW */
+.prev{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden}
+.prevhd{background:var(--ink);padding:24px 28px;display:flex;justify-content:space-between;align-items:flex-start}
+.prevbody{padding:22px 28px}
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px}
+.emico{font-size:40px;margin-bottom:9px}
+.emt{font-family:'DM Serif Display',serif;font-size:19px;color:var(--ink);margin-bottom:4px}
+.ems{font-size:13px;color:var(--ink-muted);margin-bottom:16px}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:10px 17px;border-radius:9px;font-size:13px;font-weight:500;z-index:500;box-shadow:var(--shlg);transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.gold{border-left:3px solid var(--gold)}
+.loading{position:fixed;inset:0;background:rgba(26,20,16,.6);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.loading.hidden{display:none}
+.spin{width:44px;height:44px;border:4px solid rgba(201,151,58,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mono{font-family:'DM Mono',monospace}
+.tr-r{text-align:right}
+.muted{color:var(--ink-muted);font-size:12px}
+.flex{display:flex;gap:9px;align-items:center}
+/* SETTINGS */
+.stab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff;color:var(--ink-soft);font-family:'DM Sans',sans-serif;transition:all .15s}
+.stab:hover{background:var(--cream);border-color:var(--gold);color:var(--ink)}
+.stab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.spanel{display:none}.spanel.active{display:block}
+.scard{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:20px 22px;box-shadow:var(--sh)}
+.scard-t{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.scard-d{font-size:12.5px;color:var(--ink-muted);line-height:1.5}
+/* PDF PREVIEW MODAL */
+.pdf-ov{position:fixed;inset:0;background:rgba(10,8,6,.85);z-index:400;display:flex;flex-direction:column;backdrop-filter:blur(6px)}
+.pdf-ov.hidden{display:none}
+.pdf-toolbar{background:var(--ink);padding:12px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0;border-bottom:2px solid var(--gold)}
+.pdf-toolbar-left{display:flex;align-items:center;gap:10px;flex:1}
+.pdf-title{font-family:'DM Serif Display',serif;font-size:16px;color:#fff}
+.pdf-subtitle{font-size:11px;color:var(--gold);margin-top:1px}
+.pdf-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pdf-frame-wrap{flex:1;overflow:auto;padding:24px;display:flex;justify-content:center;background:#3a3530}
+.pdf-frame-wrap iframe{width:210mm;min-height:297mm;border:none;background:#fff;box-shadow:0 8px 40px rgba(0,0,0,.6);border-radius:4px}
+.bmx{background:rgba(255,255,255,.12);border:none;color:#fff;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background .15s;margin-left:auto}
+.bmx:hover{background:rgba(255,255,255,.25)}
+.bem{background:#4285F4;color:#fff}.bem:hover{background:#3367d6}
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none;position:fixed;inset:0 auto 0 0;width:240px;z-index:150;transform:translateX(-100%);transition:transform .25s}
+  .sidebar.open{display:flex;transform:translateX(0)}
+  .sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:149}
+  .sidebar-backdrop.open{display:block}
+  .app-hd{padding:0 16px}
+  .bname{font-size:15px}
+  .bsub{display:none}
+  .mob-menu{display:flex!important}
+  .main{padding:16px}
+  .ph{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:16px}
+  .srow{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .sc{padding:12px 14px}
+  .sval{font-size:16px}
+  .modal{max-width:100%!important;border-radius:0;min-height:100vh;margin:0}
+  .ov{padding:0;align-items:flex-end}
+  .mb{padding:16px;max-height:70vh;overflow-y:auto}
+  .mft{padding:12px 16px;flex-wrap:wrap}
+  .mft .btn{flex:1;min-width:calc(50% - 5px);justify-content:center;font-size:12px;padding:8px 6px}
+  .g2{grid-template-columns:1fr}
+  .g3{grid-template-columns:1fr 1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .iw table{font-size:11px}
+  .iw table thead th{font-size:9px;padding:4px 5px}
+  .iw table tbody td{padding:3px 4px}
+  .iw table tbody td input,.iw table tbody td select{padding:4px 5px;font-size:11px}
+  table{font-size:12px}
+  thead th{padding:7px 8px;font-size:9px}
+  tbody td{padding:8px}
+  /* hide less important columns on mobile */
+  .hide-mob{display:none!important}
+  .toolbar{flex-direction:column;gap:8px;align-items:stretch}
+  .srch{width:100%}
+  .card{border-radius:10px}
+  /* PDF preview on mobile */
+  .pdf-toolbar{flex-direction:column;gap:8px;padding:10px 14px}
+  .pdf-toolbar-left{width:100%}
+  .pdf-actions{width:100%;gap:6px}
+  .pdf-actions .btn{flex:1;font-size:11px;padding:7px 4px;justify-content:center}
+  .pdf-frame-wrap{padding:10px}
+  .pdf-frame-wrap iframe{width:100%;min-height:60vh}
+  /* settings */
+  .stab{padding:6px 11px;font-size:12px}
+  .scard{padding:14px 16px}
+  /* measurement */
+  .mgrid{grid-template-columns:1fr}
+  /* share hint banner */
+  .share-hint{display:flex!important}
+}
+@media(min-width:769px){
+  .mob-menu{display:none!important}
+  .sidebar-backdrop{display:none!important}
+  .share-hint{display:none!important}
+}
+.mob-menu{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;margin-right:6px}
+.share-hint{display:none;background:#1a3a1a;border:1px solid #25D366;border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:12px;color:#a8e6b8;align-items:flex-start;gap:8px}
+.share-hint-ico{font-size:18px;flex-shrink:0}
+/* bottom nav for mobile */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:2px solid var(--gold);z-index:100;padding:6px 0 env(safe-area-inset-bottom,6px)}
+@media(max-width:768px){
+  .mob-nav{display:flex}
+  .main{padding-bottom:80px}
+}
+.mob-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.5);font-size:10px;font-family:'DM Sans',sans-serif;font-weight:500;transition:color .15s}
+.mob-nav-item.active{color:var(--gold)}
+.mob-nav-item span:first-child{font-size:18px}
+/* fab button mobile */
+.fab{display:none;position:fixed;bottom:70px;right:16px;z-index:99;width:52px;height:52px;border-radius:50%;background:var(--gold);color:var(--ink);border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.3);align-items:center;justify-content:center}
+@media(max-width:768px){.fab{display:flex}}
+/* generating PDF overlay */
+.gen-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(4px)}
+.gen-ov.hidden{display:none}
+.gen-ov-txt{color:#fff;font-size:15px;font-weight:600}
+.gen-ov-sub{color:rgba(255,255,255,.6);font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="loading hidden" id="loading"><div class="spin"></div></div>
+
+<header class="app-hd">
+  <div class="brand">
+    <button class="mob-menu" onclick="toggleSidebar()">☰</button>
+    <div class="bmark">A</div>
+    <div>
+      <div class="bname">ACH Fashion Studio</div>
+      <div class="bsub">Billing & Measurements</div>
+    </div>
+  </div>
+  <div class="flex">
+    <button class="btn bs" style="display:none" id="hd-meas-btn" onclick="openMeasureNew()">📏</button>
+    <button class="btn bs hide-mob" onclick="openMeasureNew()">📏 New Measurement</button>
+    <button class="btn bp" onclick="openNewInvoice()">+ New Invoice</button>
+  </div>
+</header>
+<div class="sidebar-backdrop" id="sb-backdrop" onclick="toggleSidebar()"></div>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="ss">Menu</div>
+    <button class="sb active" id="nav-invoices" onclick="showView('invoices')"><span>🧾</span> Invoices <span class="ibadge" id="inv-count">0</span></button>
+    <button class="sb" id="nav-measurements" onclick="showView('measurements')"><span>📏</span> Measurements <span class="ibadge" id="meas-count">0</span></button>
+    <button class="sb" id="nav-customers" onclick="showView('customers')"><span>👤</span> Customers</button>
+    <button class="sb" id="nav-products" onclick="showView('products')"><span>👗</span> Products</button>
+    <div class="ss">Insights</div>
+    <button class="sb" id="nav-reports" onclick="showView('reports')"><span>📊</span> Reports</button>
+    <div class="ss">Studio</div>
+    <button class="sb" id="nav-settings" onclick="showView('settings')"><span>⚙️</span> Settings</button>
+  </aside>
+
+  <main class="main">
+
+    <!-- INVOICES VIEW -->
+    <div id="view-invoices">
+      <div class="ph">
+        <div><div class="pt">All Invoices</div><div class="ps">Manage billing & track payments</div></div>
+        <button class="btn bp" onclick="openNewInvoice()">+ New Invoice</button>
+      </div>
+      <div class="srow">
+        <div class="sc"><div class="slbl">Total Invoices</div><div class="sval mono" id="st-total">0</div><div class="sbar"></div></div>
+        <div class="sc"><div class="slbl">Total Revenue</div><div class="sval gold mono" id="st-rev">₹0</div><div class="sbar"></div></div>
+        <div class="sc"><div class="slbl">Paid</div><div class="sval mono" id="st-paid">0</div><div class="sbar"></div></div>
+        <div class="sc"><div class="slbl">Pending</div><div class="sval mono" id="st-pend">0</div><div class="sbar"></div></div>
+      </div>
+      <div class="card">
+        <div class="toolbar">
+          <div class="srch"><span>🔍</span><input type="text" id="srch" placeholder="Search customer or invoice #…" oninput="renderList()"></div>
+          <select id="fil-st" onchange="renderList()" style="font-size:13px;padding:7px 10px;border-radius:7px">
+            <option value="">All Status</option><option value="paid">Paid</option><option value="pending">Pending</option><option value="draft">Draft</option>
+          </select>
+        </div>
+        <div id="inv-list"></div>
+      </div>
+    </div>
+
+    <!-- MEASUREMENTS VIEW -->
+    <div id="view-measurements" style="display:none">
+      <div class="ph">
+        <div><div class="pt">Customer Measurements</div><div class="ps">Store & print measurement cards</div></div>
+        <button class="btn bp" onclick="openMeasureNew()">📏 New Measurement</button>
+      </div>
+      <div class="card" id="meas-list"></div>
+    </div>
+
+    <!-- CUSTOMERS VIEW -->
+    <div id="view-customers" style="display:none">
+      <div class="ph">
+        <div><div class="pt">Customers</div><div class="ps">Saved customer profiles</div></div>
+        <button class="btn bp" onclick="openModal('cust-modal')">+ Add Customer</button>
+      </div>
+      <div class="card" id="cust-list"></div>
+    </div>
+
+    <!-- PRODUCTS VIEW -->
+    <div id="view-products" style="display:none">
+      <div class="ph">
+        <div><div class="pt">Products & Services</div><div class="ps">Your catalogue</div></div>
+        <button class="btn bp" onclick="openModal('prod-modal')">+ Add Product</button>
+      </div>
+      <div class="card" id="prod-list"></div>
+    </div>
+
+    <!-- REPORTS VIEW -->
+    <div id="view-reports" style="display:none">
+      <div class="ph"><div><div class="pt">Reports</div><div class="ps">Business overview</div></div></div>
+      <div id="reports-body"></div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
+    <div id="view-settings" style="display:none">
+      <div class="ph">
+        <div><div class="pt">Studio Settings</div><div class="ps">Full control over your studio, branding & documents</div></div>
+        <button class="btn bp" onclick="saveSettings()">💾 Save All Settings</button>
+      </div>
+
+      <!-- SETTINGS TABS -->
+      <div style="display:flex;gap:4px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="stab active" id="stab-studio" onclick="swSet('studio')">🏪 Studio Info</button>
+        <button class="stab" id="stab-branding" onclick="swSet('branding')">🎨 Branding</button>
+        <button class="stab" id="stab-invoice" onclick="swSet('invoice')">🧾 Invoice</button>
+        <button class="stab" id="stab-measurement" onclick="swSet('measurement')">📏 Measurement Card</button>
+        <button class="stab" id="stab-payment" onclick="swSet('payment')">💳 Payment</button>
+        <button class="stab" id="stab-data" onclick="swSet('data')">🗃 Data & Backup</button>
+      </div>
+
+      <!-- STUDIO INFO -->
+      <div class="spanel active" id="sp-studio">
+        <div class="scard">
+          <div class="scard-t">🏪 Studio Information</div>
+          <div class="scard-d">This appears on all invoices, measurement cards and WhatsApp messages.</div>
+          <div class="g2" style="margin-top:14px">
+            <div class="fg"><label>Studio / Business Name</label><input id="s-name" placeholder="ACH Fashion Studio"></div>
+            <div class="fg"><label>Tagline / Sub-brand</label><input id="s-tagline" placeholder="Exclusive Fashion"></div>
+            <div class="fg full"><label>Full Address</label><textarea id="s-addr" rows="3" placeholder="B61 Palace Orchard, Phase 3, Kolar Road, Bhopal"></textarea></div>
+            <div class="fg"><label>Primary Phone</label><input id="s-phone" placeholder="9300760840"></div>
+            <div class="fg"><label>Secondary Phone</label><input id="s-phone2" placeholder="8349201718"></div>
+            <div class="fg"><label>Email Address</label><input type="email" id="s-email" placeholder="studio@email.com"></div>
+            <div class="fg"><label>Website</label><input id="s-website" placeholder="www.achfashion.com"></div>
+            <div class="fg"><label>WhatsApp Number (with country code)</label><input id="s-waphone" placeholder="919300760840"></div>
+          </div>
+        </div>
+        <div class="scard" style="margin-top:16px">
+          <div class="scard-t">🧾 Estimate Header Text</div>
+          <div class="scard-d">Text shown on the top-left of the printed measurement estimate card (matches your original paper).</div>
+          <div class="g2" style="margin-top:14px">
+            <div class="fg"><label>Collection House Name</label><input id="s-collhouse" placeholder="ANSH COLLECTION HOUSE"></div>
+            <div class="fg"><label>Estimate Header Label</label><input id="s-estlabel" placeholder="ESTIMATE"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BRANDING -->
+      <div class="spanel" id="sp-branding">
+        <div class="scard">
+          <div class="scard-t">🎨 Color & Style</div>
+          <div class="scard-d">Customize the colors used across invoices and measurement cards.</div>
+          <div class="g2" style="margin-top:14px">
+            <div class="fg"><label>Primary Color (Header BG)</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="s-color-primary" value="#1a1410" style="width:50px;height:38px;padding:2px;border-radius:6px;cursor:pointer"><input id="s-color-primary-hex" placeholder="#1a1410" style="flex:1" oninput="syncColor('primary')"></div></div>
+            <div class="fg"><label>Accent Color (Gold)</label><div style="display:flex;gap:8px;align-items:center"><input type="color" id="s-color-accent" value="#c9973a" style="width:50px;height:38px;padding:2px;border-radius:6px;cursor:pointer"><input id="s-color-accent-hex" placeholder="#c9973a" style="flex:1" oninput="syncColor('accent')"></div></div>
+          </div>
+          <div style="margin-top:14px;padding:12px 16px;background:var(--cream);border-radius:8px;border:1.5px dashed var(--border)">
+            <div style="font-size:11px;color:var(--ink-muted);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.08em">Preview</div>
+            <div id="color-preview" style="background:#1a1410;padding:12px 18px;border-radius:6px;display:flex;align-items:center;gap:10px">
+              <div id="cprev-mark" style="width:30px;height:30px;background:#c9973a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#1a1410;font-size:15px">A</div>
+              <div>
+                <div id="cprev-name" style="color:#fff;font-weight:600;font-size:15px">ACH Fashion Studio</div>
+                <div id="cprev-tag" style="color:#c9973a;font-size:10px;letter-spacing:.1em;text-transform:uppercase">Exclusive Fashion</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="scard" style="margin-top:16px">
+          <div class="scard-t">🔤 Invoice Number Format</div>
+          <div class="scard-d">Customize how invoice numbers are generated.</div>
+          <div class="g2" style="margin-top:14px">
+            <div class="fg"><label>Prefix</label><input id="s-invprefix" placeholder="ACH-"></div>
+            <div class="fg"><label>Starting Number</label><input type="number" id="s-invstart" placeholder="1" min="1"></div>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--ink-muted)">Preview: <span id="invnum-preview" style="font-weight:600;color:var(--ink)">ACH-0001</span></div>
+        </div>
+      </div>
+
+      <!-- INVOICE SETTINGS -->
+      <div class="spanel" id="sp-invoice">
+        <div class="scard">
+          <div class="scard-t">🧾 Invoice Defaults</div>
+          <div class="scard-d">Default values pre-filled when you create a new invoice.</div>
+          <div class="g2" style="margin-top:14px">
+            <div class="fg"><label>Default Due Days (from invoice date)</label><input type="number" id="s-duedays" placeholder="15" min="0"></div>
+            <div class="fg"><label>Default Payment Method</label>
+              <select id="s-defpay"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Card</option><option>Cheque</option></select>
+            </div>
+            <div class="fg full"><label>Invoice Footer / Terms & Conditions</label><textarea id="s-footer" rows="3" placeholder="Thank you for choosing ACH Fashion Studio! All payments are non-refundable."></textarea></div>
+            <div class="fg full"><label>Invoice Notes (shown on every invoice)</label><textarea id="s-invnotes" rows="2" placeholder="Stitching charges once paid are non-refundable."></textarea></div>
+          </div>
+        </div>
+        <div class="scard" style="margin-top:16px">
+          <div class="scard-t">🖨 Print Settings</div>
+          <div class="scard-d">Control what appears on printed invoices.</div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+            <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--ink-soft);cursor:pointer">
+              <input type="checkbox" id="s-print-logo" style="width:16px;height:16px;border-radius:4px;cursor:pointer"> Show studio logo mark on invoice
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--ink-soft);cursor:pointer">
+              <input type="checkbox" id="s-print-sign" checked style="width:16px;height:16px;border-radius:4px;cursor:pointer"> Show signature lines on invoice
+            </label>
+            <label style="display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--ink-soft);cursor:pointer">
+              <input type="checkbox" id="s-print-addr" checked style="width:16px;height:16px;border-radius:4px;cursor:pointer"> Show customer address on invoice
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- MEASUREMENT CARD SETTINGS -->
+      <div class="spanel" id="sp-measurement">
+        <div class="scard">
+          <div class="scard-t">📏 Measurement Card Settings</div>
+          <div class="scard-d">These settings control exactly what prints on the measurement card — matching your physical paper template.</div>
+          <div class="g2" style="margin-top:14px">
+            <div class="fg"><label>Card Title (Top Right)</label><input id="s-cardtitle" placeholder="ESTIMATE"></div>
+            <div class="fg"><label>Bottom Brand Label</label><input id="s-cardbrand" placeholder="ANSH FASHION STUDIO"></div>
+            <div class="fg full"><label>Measurement Card Address Line</label><input id="s-cardaddr" placeholder="B61 Palace Orchard, Phase 3, Kolar Road, Bhopal - 9300760840,8349201718"></div>
+            <div class="fg full"><label>Stamp / Watermark Text (center of card)</label><input id="s-cardstamp" placeholder="EXCLUSIVE FASHION"></div>
+          </div>
+        </div>
+        <div class="scard" style="margin-top:16px">
+          <div class="scard-t">📐 Measurement Fields</div>
+          <div class="scard-d">Toggle which measurement fields appear on the card and entry form.</div>
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            ${['Length','Chest','Under Chest','Waist','Hip','Chak Length','Sleeves','Arm Hole','Front Neck','Shoulder','Chest Point','Chest Span','Waist Point','Hip Length','Sleeve Loosing','Daman','Back Neck'].map(f=>`
+            <label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;font-weight:500;color:var(--ink-soft);cursor:pointer">
+              <input type="checkbox" checked data-field="${f}" class="mfield-toggle" style="width:14px;height:14px;cursor:pointer"> ${f}
+            </label>`).join('')}
+          </div>
+          <div style="margin-top:12px;font-size:11px;color:var(--ink-muted)">⚠ Unchecking a field hides it from the entry form and printed card.</div>
+        </div>
+      </div>
+
+      <!-- PAYMENT SETTINGS -->
+      <div class="spanel" id="sp-payment">
+        <div class="scard">
+          <div class="scard-t">💳 Payment Details</div>
+          <div class="scard-d">Shown on invoices and WhatsApp messages so customers can pay you.</div>
+          <div class="g2" style="margin-top:14px">
+            <div class="fg"><label>UPI ID</label><input id="s-upi" placeholder="studio@upi or 9300760840@paytm"></div>
+            <div class="fg"><label>Google Pay / PhonePe Number</label><input id="s-gpay" placeholder="9300760840"></div>
+            <div class="fg"><label>Bank Name</label><input id="s-bank" placeholder="State Bank of India"></div>
+            <div class="fg"><label>Account Holder Name</label><input id="s-accname" placeholder="ACH Fashion Studio"></div>
+            <div class="fg"><label>Account Number</label><input id="s-accno" placeholder="1234567890"></div>
+            <div class="fg"><label>IFSC Code</label><input id="s-ifsc" placeholder="SBIN0001234"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATA & BACKUP -->
+      <div class="spanel" id="sp-data">
+        <div class="scard">
+          <div class="scard-t">📤 Export Data</div>
+          <div class="scard-d">Download all your data as a JSON backup file.</div>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn bs" onclick="exportData('invoices')">⬇ Export Invoices</button>
+            <button class="btn bs" onclick="exportData('measurements')">⬇ Export Measurements</button>
+            <button class="btn bs" onclick="exportData('customers')">⬇ Export Customers</button>
+            <button class="btn bp" onclick="exportData('all')">⬇ Export Everything</button>
+          </div>
+        </div>
+        <div class="scard" style="margin-top:16px">
+          <div class="scard-t">📥 Import Data</div>
+          <div class="scard-d">Restore from a previously exported backup file.</div>
+          <div style="margin-top:14px">
+            <input type="file" id="import-file" accept=".json" style="font-size:13px;padding:8px;background:var(--cream);border:1.5px dashed var(--border);border-radius:8px;width:100%;cursor:pointer">
+            <button class="btn bp" style="margin-top:10px" onclick="importData()">📥 Import Backup</button>
+          </div>
+        </div>
+        <div class="scard" style="margin-top:16px;border-color:#f5c6c2">
+          <div class="scard-t" style="color:var(--danger)">🗑 Danger Zone</div>
+          <div class="scard-d">These actions are permanent and cannot be undone.</div>
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn bd" onclick="clearData('invoices')">Clear All Invoices</button>
+            <button class="btn bd" onclick="clearData('measurements')">Clear All Measurements</button>
+            <button class="btn bd" onclick="clearData('all')">⚠ Reset Everything</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;display:flex;gap:10px">
+        <button class="btn bp" onclick="saveSettings()">💾 Save All Settings</button>
+        <button class="btn bs" onclick="loadSet()">↺ Reset to Saved</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ INVOICE MODAL ══ -->
+<div class="ov hidden" id="inv-modal">
+  <div class="modal">
+    <div class="mhd">
+      <div><div class="mt" id="m-title">New Invoice</div><div class="msub" id="m-num">ACH-0001</div></div>
+      <button class="mx" onclick="closeModal('inv-modal')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="tabs">
+        <button class="tab active" onclick="swTab('details')">Details</button>
+        <button class="tab" onclick="swTab('preview')">Preview</button>
+      </div>
+      <!-- DETAILS TAB -->
+      <div class="tp active" id="tp-details">
+        <div class="secl">Customer Information</div>
+        <div class="g2">
+          <div class="fg"><label>Customer Name *</label><input id="f-cname" placeholder="Priya Sharma" list="cust-dl"><datalist id="cust-dl"></datalist></div>
+          <div class="fg"><label>Contact No.</label><input id="f-cphone" placeholder="+91 98765 43210"></div>
+          <div class="fg full"><label>Address</label><textarea id="f-caddr" rows="2"></textarea></div>
+        </div>
+        <hr class="dv">
+        <div class="secl">Invoice Settings</div>
+        <div class="g4">
+          <div class="fg"><label>Invoice #</label><input id="f-inum" readonly style="background:#f0ece5;color:var(--ink-muted)"></div>
+          <div class="fg"><label>Bag No.</label><input id="f-bagno" placeholder="B-001"></div>
+          <div class="fg"><label>Invoice Date</label><input type="date" id="f-idate"></div>
+          <div class="fg"><label>Delivery Date</label><input type="date" id="f-ddate"></div>
+          <div class="fg"><label>Trial Date</label><input type="date" id="f-tdate"></div>
+          <div class="fg"><label>Designed By</label><input id="f-designer" placeholder="Designer name"></div>
+          <div class="fg"><label>Prepared By</label><input id="f-preparedby" placeholder="Staff name"></div>
+          <div class="fg"><label>Status</label>
+            <select id="f-status"><option value="draft">Draft</option><option value="pending">Pending</option><option value="paid">Paid</option></select>
+          </div>
+        </div>
+        <hr class="dv">
+        <div class="secl">Items / Particulars</div>
+        <div class="iw">
+          <table>
+            <thead><tr>
+              <th style="width:35%">Particular / Description</th>
+              <th style="width:15%">Rate (₹)</th>
+              <th style="width:10%">Qty</th>
+              <th style="width:20%">Total Amount (₹)</th>
+              <th style="width:40px"></th>
+            </tr></thead>
+            <tbody id="items-body"></tbody>
+          </table>
+          <div class="addrow"><button onclick="addRow()">+ Add Item</button></div>
+        </div>
+        <div class="g2" style="margin-top:13px;gap:13px;align-items:start">
+          <div>
+            <div class="fg" style="margin-bottom:10px"><label>Advance Amount (₹)</label><input type="number" id="f-advance" value="0" min="0" oninput="calcTotals()"></div>
+            <div class="fg"><label>Notes / Description</label><textarea id="f-notes" rows="3" placeholder="Special instructions…"></textarea></div>
+          </div>
+          <div class="totbox">
+            <div class="trow"><span>Subtotal</span><span class="v" id="t-sub">₹0.00</span></div>
+            <div class="trow"><span>Advance Paid</span><span class="v" id="t-adv">-₹0.00</span></div>
+            <div class="trow grand"><span>Balance Due</span><span class="v" id="t-bal">₹0.00</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- PREVIEW TAB -->
+      <div class="tp" id="tp-preview"><div id="prev-content"></div></div>
+    </div>
+    <div class="mft">
+      <button class="btn bg" onclick="closeModal('inv-modal')">Cancel</button>
+      <button class="btn bs" onclick="saveInvoice('draft')">Save Draft</button>
+      <button class="btn bw" onclick="doWhatsApp()">📱 WhatsApp</button>
+      <button class="btn bem" onclick="doEmail()">✉ Email</button>
+      <button class="btn bs" onclick="doPDF()">👁 Preview & Download</button>
+      <button class="btn bp" onclick="saveInvoice('save')">Save Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MEASUREMENT MODAL ══ -->
+<div class="ov hidden" id="meas-modal">
+  <div class="modal" style="max-width:800px">
+    <div class="mhd">
+      <div><div class="mt" id="mm-title">New Measurement</div><div class="msub" id="mm-sub">Customer Measurement Card</div></div>
+      <button class="mx" onclick="closeModal('meas-modal')">✕</button>
+    </div>
+    <div class="mb">
+      <!-- Customer Info -->
+      <div class="secl">Customer Details</div>
+      <div class="g3" style="margin-bottom:4px">
+        <div class="fg"><label>S.No.</label><input id="mm-sno" placeholder="600"></div>
+        <div class="fg"><label>Customer Name *</label><input id="mm-name" placeholder="Priya Sharma" list="cust-dl2"><datalist id="cust-dl2"></datalist></div>
+        <div class="fg"><label>Contact No.</label><input id="mm-phone" placeholder="+91 …"></div>
+        <div class="fg"><label>Date</label><input type="date" id="mm-date"></div>
+        <div class="fg"><label>Trial Date</label><input type="date" id="mm-trial"></div>
+        <div class="fg"><label>Delivery Date</label><input type="date" id="mm-delivery"></div>
+        <div class="fg"><label>Bag No.</label><input id="mm-bagno" placeholder="B-001"></div>
+        <div class="fg"><label>Designed By</label><input id="mm-designer" placeholder="Designer name"></div>
+        <div class="fg"><label>Prepared By</label><input id="mm-preparedby" placeholder="Staff name"></div>
+      </div>
+
+      <!-- KURTIES / BLOUSE -->
+      <div class="secl" style="margin-top:16px">Kurties / Blouse Measurements</div>
+      <div class="msec">
+        <div class="mgrid">
+          <div>
+            <div class="mfield"><span class="mflbl">Length</span><input class="mfinput" id="m-length" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Chest</span><input class="mfinput" id="m-chest" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Under Chest</span><input class="mfinput" id="m-underchest" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Waist</span><input class="mfinput" id="m-waist" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Hip</span><input class="mfinput" id="m-hip" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Chak Length</span><input class="mfinput" id="m-chaklength" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Sleeves</span><input class="mfinput" id="m-sleeves" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Arm Hole</span><input class="mfinput" id="m-armhole" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Front Neck</span><input class="mfinput" id="m-frontneck" placeholder="in inches"></div>
+          </div>
+          <div>
+            <div class="mfield"><span class="mflbl">Shoulder</span><input class="mfinput" id="m-shoulder" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Chest Point</span><input class="mfinput" id="m-chestpoint" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Chest Span</span><input class="mfinput" id="m-chestspan" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Waist Point</span><input class="mfinput" id="m-waistpoint" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Hip Length</span><input class="mfinput" id="m-hiplength" placeholder="in inches"></div>
+            <div class="mfield" style="border-bottom:none;padding-bottom:0"><span class="mflbl" style="color:transparent">-</span></div>
+            <div class="mfield"><span class="mflbl">Sleeve Loosing</span><input class="mfinput" id="m-sleeveloosing" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Daman</span><input class="mfinput" id="m-daman" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Back Neck</span><input class="mfinput" id="m-backneck" placeholder="in inches"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PENT / SALWAR / PLAZZO -->
+      <div class="secl">Pent / Salwar / Plazzo Measurements</div>
+      <div class="msec">
+        <div class="mgrid">
+          <div>
+            <div class="mfield"><span class="mflbl">Length</span><input class="mfinput" id="p-length" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Hip</span><input class="mfinput" id="p-hip" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Knee</span><input class="mfinput" id="p-knee" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Sheet</span><input class="mfinput" id="p-sheet" placeholder="in inches"></div>
+          </div>
+          <div>
+            <div class="mfield"><span class="mflbl">Waist</span><input class="mfinput" id="p-waist" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Thigh</span><input class="mfinput" id="p-thigh" placeholder="in inches"></div>
+            <div class="mfield"><span class="mflbl">Bottom</span><input class="mfinput" id="p-bottom" placeholder="in inches"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fg"><label>Description / Notes</label><textarea id="mm-desc" rows="2" placeholder="Special instructions…"></textarea></div>
+    </div>
+    <div class="mft">
+      <button class="btn bg" onclick="closeModal('meas-modal')">Cancel</button>
+      <button class="btn bw" onclick="doMeasWhatsApp()">📱 WhatsApp</button>
+      <button class="btn bem" onclick="doMeasEmail()">✉ Email</button>
+      <button class="btn bs" onclick="printMeasurement()">👁 Preview & Download</button>
+      <button class="btn bp" onclick="saveMeasurement()">Save Measurement</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER MODAL -->
+<div class="ov hidden" id="cust-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="mhd"><div class="mt">Add Customer</div><button class="mx" onclick="closeModal('cust-modal')">✕</button></div>
+    <div class="mb">
+      <div class="g2">
+        <div class="fg"><label>Name *</label><input id="cn-name" placeholder="Priya Sharma"></div>
+        <div class="fg"><label>Phone</label><input id="cn-phone" placeholder="+91 …"></div>
+        <div class="fg full"><label>Address</label><textarea id="cn-addr" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="mft"><button class="btn bg" onclick="closeModal('cust-modal')">Cancel</button><button class="btn bp" onclick="saveCustomer()">Save</button></div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="ov hidden" id="prod-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="mhd"><div class="mt">Add Product / Service</div><button class="mx" onclick="closeModal('prod-modal')">✕</button></div>
+    <div class="mb">
+      <div class="g2">
+        <div class="fg"><label>Name *</label><input id="pn-name" placeholder="Silk Saree Stitching"></div>
+        <div class="fg"><label>Unit</label><select id="pn-unit"><option>Piece</option><option>Meter</option><option>Set</option><option>Pair</option><option>Kg</option></select></div>
+        <div class="fg"><label>Default Rate (₹)</label><input type="number" id="pn-rate" min="0" placeholder="800"></div>
+        <div class="fg full"><label>Description</label><textarea id="pn-desc" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="mft"><button class="btn bg" onclick="closeModal('prod-modal')">Cancel</button><button class="btn bp" onclick="saveProduct()">Save</button></div>
+  </div>
+</div>
+
+<!-- ══ PDF PREVIEW MODAL ══ -->
+<div class="pdf-ov hidden" id="pdf-ov">
+  <div class="pdf-toolbar">
+    <div class="pdf-toolbar-left">
+      <div>
+        <div class="pdf-title" id="pdf-title">Document Preview</div>
+        <div class="pdf-subtitle" id="pdf-subtitle">ACH Fashion Studio</div>
+      </div>
+    </div>
+    <div class="pdf-actions">
+      <button class="btn bw bsm" id="pdf-wa-btn" onclick="pdfShareWhatsApp()">📱 WhatsApp</button>
+      <button class="btn bem bsm" id="pdf-mail-btn" onclick="pdfShareEmail()">✉ Email</button>
+      <button class="btn bs bsm" onclick="pdfDownload()">⬇ Save PDF</button>
+      <button class="btn bp bsm hide-mob" onclick="pdfPrint()">🖨 Print</button>
+    </div>
+    <button class="bmx" onclick="closePDFPreview()" title="Close">✕</button>
+  </div>
+  <!-- Mobile share hint -->
+  <div class="share-hint" style="margin:8px 14px 0;display:none" id="share-hint">
+    <div class="share-hint-ico">💡</div>
+    <div><strong>How to share PDF:</strong> Tap <em>Save PDF</em> first to download it, then tap WhatsApp or Email — your file will be in your Downloads folder ready to attach.</div>
+  </div>
+  <div class="pdf-frame-wrap">
+    <iframe id="pdf-iframe" title="Document Preview"></iframe>
+  </div>
+</div>
+
+<iframe id="pf" style="display:none;position:fixed;left:-9999px;width:210mm;height:297mm;border:none"></iframe>
+<div class="toast" id="toast"></div>
+
+<!-- GENERATING PDF OVERLAY -->
+<div class="gen-ov hidden" id="gen-ov">
+  <div class="spin" style="width:52px;height:52px;border-width:5px"></div>
+  <div class="gen-ov-txt" id="gen-ov-txt">Generating PDF…</div>
+  <div class="gen-ov-sub" id="gen-ov-sub">Please wait a moment</div>
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mob-nav">
+  <button class="mob-nav-item active" id="mn-invoices" onclick="showView('invoices');setMobNav('invoices')"><span>🧾</span><span>Invoices</span></button>
+  <button class="mob-nav-item" id="mn-measurements" onclick="showView('measurements');setMobNav('measurements')"><span>📏</span><span>Measure</span></button>
+  <button class="mob-nav-item" id="mn-customers" onclick="showView('customers');setMobNav('customers')"><span>👤</span><span>Customers</span></button>
+  <button class="mob-nav-item" id="mn-reports" onclick="showView('reports');setMobNav('reports')"><span>📊</span><span>Reports</span></button>
+  <button class="mob-nav-item" id="mn-settings" onclick="showView('settings');setMobNav('settings')"><span>⚙️</span><span>Settings</span></button>
+</nav>
+
+<!-- MOBILE FAB -->
+<button class="fab" onclick="openNewInvoice()" title="New Invoice">+</button>
+
+<script>
+// ══ STORAGE ══
+const ST={
+  async get(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null}catch{return null}},
+  async set(k,v){try{await window.storage.set(k,JSON.stringify(v))}catch(e){console.error(e)}}
+};
+let invoices=[],customers=[],products=[],measurements=[],settings={},editId=null,editMId=null,rowCnt=0;
+
+async function init(){
+  invoices    = await ST.get('ach_inv')  || [];
+  customers   = await ST.get('ach_cust') || [];
+  products    = await ST.get('ach_prod') || [];
+  measurements= await ST.get('ach_meas') || [];
+  settings    = await ST.get('ach_set')  || {
+    name:'ACH Fashion Studio', tagline:'Exclusive Fashion',
+    phone:'9300760840', phone2:'8349201718',
+    addr:'B61 Palace Orchard, Phase 3, Kolar Road, Bhopal',
+    email:'', website:'', waphone:'',
+    collhouse:'ANSH COLLECTION HOUSE', estlabel:'ESTIMATE',
+    colorPrimary:'#1a1410', colorAccent:'#c9973a',
+    invPrefix:'ACH-', invStart:1,
+    dueDays:15, defPay:'Cash',
+    footer:'Thank you for choosing ACH Fashion Studio! All payments are non-refundable.',
+    invNotes:'',
+    printLogo:true, printSign:true, printAddr:true,
+    cardtitle:'ESTIMATE', cardbrand:'ANSH FASHION STUDIO',
+    cardaddr:'B61 Palace Orchard, Phase 3, Kolar Road, Bhopal - 9300760840,8349201718',
+    cardstamp:'EXCLUSIVE FASHION',
+    upi:'', gpay:'', bank:'', accname:'', accno:'', ifsc:''
+  };
+  loadSet(); renderList(); renderMeas(); renderCust(); renderProd(); renderReports(); updateStats(); updateBadges(); updateDLs();
+  }
+init();
+
+function load(b){document.getElementById('loading').classList.toggle('hidden',!b)}
+
+// ── NAV ──
+function showView(n){
+  ['invoices','measurements','customers','products','reports','settings'].forEach(v=>{
+    document.getElementById('view-'+v).style.display=v===n?'':'none';
+    document.getElementById('nav-'+v)?.classList.toggle('active',v===n);
+  });
+  if(n==='reports') renderReports();
+}
+
+// ── INVOICE LIST ──
+function renderList(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const st=document.getElementById('fil-st').value;
+  const data=invoices.filter(i=>(i.custName||'').toLowerCase().includes(q)||(i.invNum||'').toLowerCase().includes(q)).filter(i=>!st||i.status===st).sort((a,b)=>b.createdAt-a.createdAt);
+  const el=document.getElementById('inv-list');
+  if(!data.length){el.innerHTML=`<div class="empty"><div class="emico">🧾</div><div class="emt">No invoices yet</div><div class="ems">Create your first invoice to get started</div><button class="btn bp" onclick="openNewInvoice()">+ New Invoice</button></div>`;return}
+  el.innerHTML=`<div style="overflow-x:auto"><table><thead><tr>
+    <th>Invoice #</th><th>Customer</th>
+    <th class="hide-mob">Date</th><th class="hide-mob">Delivery</th>
+    <th>Total</th><th class="hide-mob">Advance</th>
+    <th>Balance</th><th class="hide-mob">Status</th><th>Actions</th>
+  </tr></thead><tbody>
+  ${data.map(i=>`<tr onclick="openEdit('${i.id}')">
+    <td><span class="mono" style="font-weight:600;font-size:12px">${i.invNum}</span>${i.bagNo?'<br><span class="muted">Bag: '+i.bagNo+'</span>':''}</td>
+    <td><div style="font-weight:500">${i.custName||'—'}</div><div class="muted">${i.custPhone||''}</div><div class="muted" style="display:none" id="mob-dt-${i.id}">${i.invDate||''}</div></td>
+    <td class="muted hide-mob">${i.invDate||'—'}</td>
+    <td class="muted hide-mob">${i.ddate||'—'}</td>
+    <td class="mono" style="font-weight:600;white-space:nowrap">₹${fmt(i.grand||0)}</td>
+    <td class="mono hide-mob">₹${fmt(i.advance||0)}</td>
+    <td class="mono" style="color:${(i.balance||0)>0?'#e67e22':'var(--success)'};white-space:nowrap">₹${fmt(i.balance||0)}</td>
+    <td class="hide-mob"><span class="badge ${i.status}">${uc(i.status)}</span></td>
+    <td onclick="event.stopPropagation()"><div class="flex" style="flex-wrap:wrap;gap:4px">
+      <button class="btn bsm bs" onclick="pdfById('${i.id}')">👁</button>
+      <button class="btn bsm bw" onclick="waById('${i.id}')">📱</button>
+      <button class="btn bsm bem" onclick="mailById('${i.id}')">✉</button>
+      <button class="btn bsm bd" onclick="delInv('${i.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+
+function updateStats(){
+  document.getElementById('st-total').textContent=invoices.length;
+  document.getElementById('st-rev').textContent='₹'+fmt(invoices.reduce((a,b)=>a+(b.grand||0),0));
+  document.getElementById('st-paid').textContent=invoices.filter(i=>i.status==='paid').length;
+  document.getElementById('st-pend').textContent=invoices.filter(i=>i.status==='pending').length;
+}
+function updateBadges(){
+  document.getElementById('inv-count').textContent=invoices.length;
+  document.getElementById('meas-count').textContent=measurements.length;
+}
+function updateDLs(){
+  const d1=document.getElementById('cust-dl');
+  const d2=document.getElementById('cust-dl2');
+  const opts=customers.map(c=>`<option value="${esc(c.name)}">`).join('');
+  if(d1) d1.innerHTML=opts;
+  if(d2) d2.innerHTML=opts;
+}
+
+// ── INVOICE MODAL ──
+function openNewInvoice(){
+  editId=null; rowCnt=0;
+  const num=genNum();
+  document.getElementById('m-title').textContent='New Invoice';
+  document.getElementById('m-num').textContent=num;
+  document.getElementById('f-inum').value=num;
+  document.getElementById('f-idate').value=today();
+  document.getElementById('f-ddate').value='';
+  document.getElementById('f-tdate').value='';
+  document.getElementById('f-status').value='draft';
+  document.getElementById('f-bagno').value='';
+  document.getElementById('f-designer').value='';
+  document.getElementById('f-preparedby').value='';
+  ['f-cname','f-cphone','f-caddr','f-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('f-advance').value=0;
+  document.getElementById('items-body').innerHTML='';
+  addRow(); calcTotals();
+  swTab('details'); openModal('inv-modal'); updateDLs();
+}
+function openEdit(id){
+  const inv=invoices.find(i=>i.id===id);if(!inv)return;
+  editId=id; rowCnt=0;
+  document.getElementById('m-title').textContent='Edit Invoice';
+  document.getElementById('m-num').textContent=inv.invNum;
+  document.getElementById('f-inum').value=inv.invNum;
+  document.getElementById('f-idate').value=inv.invDate||today();
+  document.getElementById('f-ddate').value=inv.ddate||'';
+  document.getElementById('f-tdate').value=inv.tdate||'';
+  document.getElementById('f-status').value=inv.status||'draft';
+  document.getElementById('f-bagno').value=inv.bagNo||'';
+  document.getElementById('f-designer').value=inv.designer||'';
+  document.getElementById('f-preparedby').value=inv.preparedby||'';
+  document.getElementById('f-cname').value=inv.custName||'';
+  document.getElementById('f-cphone').value=inv.custPhone||'';
+  document.getElementById('f-caddr').value=inv.custAddr||'';
+  document.getElementById('f-advance').value=inv.advance||0;
+  document.getElementById('f-notes').value=inv.notes||'';
+  document.getElementById('items-body').innerHTML='';
+  (inv.items||[]).forEach(it=>addRow(it));
+  calcTotals(); swTab('details'); openModal('inv-modal');
+}
+
+// ── ROWS ──
+function addRow(d){
+  const id=++rowCnt;
+  const pOpts=products.map(p=>`<option value="${esc(p.name)}" data-rate="${p.rate||0}">`).join('');
+  const tr=document.createElement('tr');
+  tr.className='item-row'; tr.id='row-'+id;
+  tr.innerHTML=`
+    <td><input type="text" list="pdl-${id}" placeholder="Kurti stitching, blouse…" value="${d?esc(d.name):''}" oninput="onProd(${id})" onchange="calcTotals()"><datalist id="pdl-${id}">${pOpts}</datalist></td>
+    <td><input type="number" id="rate-${id}" value="${d?d.rate:''}" min="0" placeholder="0" oninput="calcTotals()"></td>
+    <td><input type="number" id="qty-${id}" value="${d?d.qty:1}" min="1" oninput="calcTotals()" style="width:52px"></td>
+    <td><span class="mono" id="amt-${id}" style="font-weight:600;font-size:13px">₹${d?fmt(d.amt||0):'0.00'}</span></td>
+    <td><button class="delbtn" onclick="delRow(${id})">✕</button></td>`;
+  document.getElementById('items-body').appendChild(tr);
+  if(d) calcTotals();
+}
+function onProd(id){
+  const inp=document.querySelector('#row-'+id+' input[type=text]');
+  const p=products.find(x=>x.name===inp.value);
+  if(p){document.getElementById('rate-'+id).value=p.rate||'';calcTotals();}
+}
+function delRow(id){const el=document.getElementById('row-'+id);if(el)el.remove();calcTotals();}
+
+function getItems(){
+  return Array.from(document.querySelectorAll('.item-row')).map(row=>{
+    const id=row.id.replace('row-','');
+    const name=row.querySelector('input[type=text]').value.trim();
+    const rate=parseFloat(document.getElementById('rate-'+id)?.value)||0;
+    const qty=parseFloat(document.getElementById('qty-'+id)?.value)||1;
+    const amt=rate*qty;
+    const amtEl=document.getElementById('amt-'+id);
+    if(amtEl) amtEl.textContent='₹'+fmt(amt);
+    return {name,rate,qty,amt};
+  }).filter(r=>r.name);
+}
+function calcTotals(){
+  const items=getItems();
+  const grand=items.reduce((a,b)=>a+b.amt,0);
+  const adv=parseFloat(document.getElementById('f-advance')?.value)||0;
+  const bal=Math.max(0,grand-adv);
+  document.getElementById('t-sub').textContent='₹'+fmt(grand);
+  document.getElementById('t-adv').textContent='-₹'+fmt(adv);
+  document.getElementById('t-bal').textContent='₹'+fmt(bal);
+  return {items,grand,adv,bal};
+}
+
+// ── SAVE INVOICE ──
+async function saveInvoice(mode){
+  const t=calcTotals();
+  const inv={
+    id:editId||uid(),
+    invNum:document.getElementById('f-inum').value,
+    invDate:document.getElementById('f-idate').value,
+    ddate:document.getElementById('f-ddate').value,
+    tdate:document.getElementById('f-tdate').value,
+    status:mode==='draft'?'draft':document.getElementById('f-status').value,
+    bagNo:document.getElementById('f-bagno').value.trim(),
+    designer:document.getElementById('f-designer').value.trim(),
+    preparedby:document.getElementById('f-preparedby').value.trim(),
+    custName:document.getElementById('f-cname').value.trim(),
+    custPhone:document.getElementById('f-cphone').value.trim(),
+    custAddr:document.getElementById('f-caddr').value.trim(),
+    advance:t.adv, grand:t.grand, balance:t.bal,
+    notes:document.getElementById('f-notes').value.trim(),
+    items:t.items,
+    createdAt:editId?(invoices.find(i=>i.id===editId)?.createdAt||Date.now()):Date.now(),
+    updatedAt:Date.now()
+  };
+  if(!inv.custName){toast('⚠ Enter customer name','');return;}
+  if(!inv.items.length){toast('⚠ Add at least one item','');return;}
+  if(editId){const i=invoices.findIndex(x=>x.id===editId);if(i>=0)invoices[i]=inv;}
+  else{
+    invoices.push(inv);
+    if(!customers.find(c=>c.name.toLowerCase()===inv.custName.toLowerCase())){
+      customers.push({id:uid(),name:inv.custName,phone:inv.custPhone,addr:inv.custAddr});
+      await autosave('ach_cust',customers);
+      renderCust(); updateDLs();
+    }
+  }
+  await autosave('ach_inv',invoices);
+  closeModal('inv-modal'); renderList(); updateStats(); updateBadges();
+  toast('✓ Invoice saved','gold');
+}
+async function delInv(id){
+  if(!confirm('Delete this invoice?'))return;
+  invoices=invoices.filter(i=>i.id!==id);
+  await autosave('ach_inv',invoices);
+  renderList(); updateStats(); updateBadges();
+  toast('Invoice deleted','');
+}
+
+// ── BUILD INVOICE OBJ FROM FORM ──
+function buildObj(){
+  const t=calcTotals();
+  return {
+    invNum:document.getElementById('f-inum').value,
+    invDate:document.getElementById('f-idate').value,
+    ddate:document.getElementById('f-ddate').value,
+    tdate:document.getElementById('f-tdate').value,
+    status:document.getElementById('f-status').value,
+    bagNo:document.getElementById('f-bagno').value,
+    designer:document.getElementById('f-designer').value,
+    preparedby:document.getElementById('f-preparedby').value,
+    custName:document.getElementById('f-cname').value,
+    custPhone:document.getElementById('f-cphone').value,
+    custAddr:document.getElementById('f-caddr').value,
+    advance:t.adv, grand:t.grand, balance:t.bal,
+    notes:document.getElementById('f-notes').value,
+    items:t.items
+  };
+}
+
+// ── PDF / PRINT ──
+function doPDF(){printInv(buildObj());}
+function pdfById(id){const inv=invoices.find(i=>i.id===id);if(inv)printInv(inv);}
+
+function buildInvHTML(inv){
+  const stc={paid:'#27ae60',pending:'#e67e22',draft:'#8c7d72'};
+  const pc=settings.colorPrimary||'#1a1410';
+  const ac=settings.colorAccent||'#c9973a';
+  const rows=(inv.items||[]).map((it,i)=>`
+    <tr style="background:${i%2===0?'#fff':'#fdf6e8'}">
+      <td style="padding:7px 10px;border-bottom:1px solid #e8ddd0;font-size:12.5px;color:#1a1410">${i+1}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e8ddd0;font-size:12.5px;color:#1a1410;font-weight:500">${it.name}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e8ddd0;font-size:12.5px;color:#4a3f35;text-align:right">₹${fmt(it.rate)}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e8ddd0;font-size:12.5px;color:#4a3f35;text-align:center">${it.qty}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e8ddd0;font-size:13px;color:#1a1410;font-weight:700;text-align:right">₹${fmt(it.amt)}</td>
+    </tr>`).join('');
+  // payment lines
+  const payLines=[];
+  if(settings.upi) payLines.push('UPI: '+settings.upi);
+  if(settings.gpay) payLines.push('GPay/PhonePe: '+settings.gpay);
+  if(settings.accno) payLines.push('Bank: '+(settings.bank||'')+' | A/C: '+settings.accno+(settings.ifsc?' | IFSC: '+settings.ifsc:''));
+
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice ${inv.invNum}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',sans-serif;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    @page{size:A4;margin:10mm 12mm}
+  </style></head><body>
+
+  <!-- TOP BANNER -->
+  <div style="background:${pc};padding:22px 28px;display:flex;justify-content:space-between;align-items:flex-start;border-radius:10px 10px 0 0">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div style="width:44px;height:44px;background:${ac};border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:22px;color:${pc};font-weight:700;flex-shrink:0">A</div>
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#fff">${settings.name||'ACH Fashion Studio'}</div>
+        <div style="font-size:10px;color:${ac};letter-spacing:.12em;text-transform:uppercase;margin-top:2px">${settings.tagline||'Exclusive Fashion'}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:5px;line-height:1.6">${settings.addr||''}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.65)">Ph: ${settings.phone||''}${settings.phone2?' / '+settings.phone2:''}</div>
+        ${settings.email?`<div style="font-size:11px;color:rgba(255,255,255,.5)">${settings.email}</div>`:''}
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:${ac}">ESTIMATE / INVOICE</div>
+      <div style="font-family:'DM Mono',monospace;font-size:26px;color:#fff;margin-top:3px;font-weight:500">${inv.invNum}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:5px;line-height:1.8">
+        Date: <strong style="color:#fff">${inv.invDate||'—'}</strong><br>
+        ${inv.tdate?'Trial: <strong style="color:#fff">'+inv.tdate+'</strong><br>':''}
+        Delivery: <strong style="color:#fff">${inv.ddate||'—'}</strong>
+      </div>
+      <div style="margin-top:8px;display:inline-block;background:${stc[inv.status]||'#8c7d72'};padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;color:#fff;letter-spacing:.06em;text-transform:uppercase">${uc(inv.status||'draft')}</div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER + META BAR -->
+  <div style="background:#faf7f2;border:1px solid #e0d8cc;border-top:none;padding:13px 28px;display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8c7d72;margin-bottom:3px">BILL TO</div>
+      <div style="font-size:17px;font-weight:700;color:#1a1410">${inv.custName||''}</div>
+      <div style="font-size:12px;color:#4a3f35;margin-top:3px;line-height:1.7">
+        ${inv.custPhone?'📞 '+inv.custPhone+'<br>':''}
+        ${settings.printAddr!==false&&inv.custAddr?inv.custAddr.replace(/\n/g,'<br>'):''}
+      </div>
+    </div>
+    <div style="font-size:12px;color:#4a3f35;text-align:right;display:grid;grid-template-columns:auto auto;gap:3px 14px">
+      ${inv.bagNo?`<span style="color:#8c7d72;font-size:10px;font-weight:600;text-transform:uppercase">Bag No.</span><span style="font-weight:700;color:#1a1410">${inv.bagNo}</span>`:''}
+      ${inv.designer?`<span style="color:#8c7d72;font-size:10px;font-weight:600;text-transform:uppercase">Designed By</span><span style="font-weight:700;color:#1a1410">${inv.designer}</span>`:''}
+      ${inv.preparedby?`<span style="color:#8c7d72;font-size:10px;font-weight:600;text-transform:uppercase">Prepared By</span><span style="font-weight:700;color:#1a1410">${inv.preparedby}</span>`:''}
+    </div>
+  </div>
+
+  <!-- ITEMS TABLE -->
+  <div style="margin-top:14px">
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background:${pc}">
+          <th style="padding:9px 10px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-align:left;width:5%">S.No</th>
+          <th style="padding:9px 10px;font-size:10px;color:#fff;text-align:left">Particular / Description</th>
+          <th style="padding:9px 10px;font-size:10px;color:${ac};text-align:right;width:16%">Rate</th>
+          <th style="padding:9px 10px;font-size:10px;color:#fff;text-align:center;width:8%">Qty</th>
+          <th style="padding:9px 10px;font-size:10px;color:${ac};text-align:right;width:16%">Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  <!-- TOTALS + PAYMENT -->
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:16px;gap:20px">
+    <!-- Payment info left -->
+    <div style="flex:1">
+      ${payLines.length?`<div style="background:#faf7f2;border:1px solid #e0d8cc;border-radius:8px;padding:12px 16px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#8c7d72;margin-bottom:8px">PAYMENT DETAILS</div>
+        ${payLines.map(l=>`<div style="font-size:12px;color:#4a3f35;margin-bottom:3px">${l}</div>`).join('')}
+      </div>`:''}
+      ${settings.invNotes?`<div style="margin-top:10px;padding:10px 14px;background:#fdf6e8;border-radius:8px;font-size:12px;color:#4a3f35;border:1px solid #f0ddb0"><strong>Note:</strong> ${settings.invNotes}</div>`:''}
+      ${inv.notes?`<div style="margin-top:10px;padding:10px 14px;background:#faf7f2;border-radius:8px;font-size:12px;color:#4a3f35;border:1px solid #e0d8cc"><strong>Instructions:</strong> ${inv.notes}</div>`:''}
+    </div>
+    <!-- Totals right -->
+    <div style="width:270px;flex-shrink:0">
+      <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#4a3f35;background:#faf7f2;border:1px solid #e0d8cc;border-radius:8px 8px 0 0">
+        <span>Total Amount</span><span style="font-family:'DM Mono',monospace;font-weight:600;color:#1a1410">₹${fmt(inv.grand||0)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:13px;color:#4a3f35;background:#faf7f2;border:1px solid #e0d8cc;border-top:none">
+        <span>Advance Amount</span><span style="font-family:'DM Mono',monospace">₹${fmt(inv.advance||0)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:11px 14px;font-size:15px;font-weight:700;background:${pc};border-radius:0 0 8px 8px">
+        <span style="color:#fff">Balance Amount</span>
+        <span style="font-family:'DM Mono',monospace;color:${ac}">₹${fmt(inv.balance||0)}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNATURE ROW -->
+  ${settings.printSign!==false?`<div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:24px">
+    <div style="border-top:1.5px dashed #ccc;padding-top:8px;font-size:11px;color:#8c7d72;text-align:center">Customer Signature</div>
+    <div style="border-top:1.5px dashed #ccc;padding-top:8px;font-size:11px;color:#8c7d72;text-align:center">Authorised Signature</div>
+  </div>`:''}
+
+  <!-- FOOTER -->
+  <div style="margin-top:18px;padding-top:12px;border-top:1px solid #e0d8cc;text-align:center">
+    <div style="font-size:12px;color:#8c7d72;font-style:italic">${settings.footer||'Thank you for your business!'}</div>
+    <div style="font-size:11px;color:${ac};font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:4px">${settings.name||'ACH Fashion Studio'}</div>
+    ${settings.website?`<div style="font-size:10px;color:#aaa;margin-top:2px">${settings.website}</div>`:''}
+  </div>
+  <script>window.onload=function(){window.print()}<\/script>
+  </body></html>`;
+  return html;
+}
+
+// ── MEASUREMENT MODAL ──
+function openMeasureNew(){
+  editMId=null;
+  document.getElementById('mm-title').textContent='New Measurement';
+  document.getElementById('mm-sub').textContent='Customer Measurement Card';
+  document.getElementById('mm-sno').value=String(measurements.length+1).padStart(3,'0');
+  document.getElementById('mm-date').value=today();
+  document.getElementById('mm-trial').value='';
+  document.getElementById('mm-delivery').value='';
+  ['mm-name','mm-phone','mm-bagno','mm-designer','mm-preparedby','mm-desc'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  const mIds=['m-length','m-chest','m-underchest','m-waist','m-hip','m-chaklength','m-sleeves','m-armhole','m-frontneck','m-shoulder','m-chestpoint','m-chestspan','m-waistpoint','m-hiplength','m-sleeveloosing','m-daman','m-backneck','p-length','p-hip','p-knee','p-sheet','p-waist','p-thigh','p-bottom'];
+  mIds.forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  openModal('meas-modal'); updateDLs();
+}
+function openMeasEdit(id){
+  const m=measurements.find(x=>x.id===id);if(!m)return;
+  editMId=id;
+  document.getElementById('mm-title').textContent='Edit Measurement';
+  document.getElementById('mm-sub').textContent=m.custName||'';
+  document.getElementById('mm-sno').value=m.sno||'';
+  document.getElementById('mm-name').value=m.custName||'';
+  document.getElementById('mm-phone').value=m.custPhone||'';
+  document.getElementById('mm-date').value=m.date||today();
+  document.getElementById('mm-trial').value=m.trial||'';
+  document.getElementById('mm-delivery').value=m.delivery||'';
+  document.getElementById('mm-bagno').value=m.bagNo||'';
+  document.getElementById('mm-designer').value=m.designer||'';
+  document.getElementById('mm-preparedby').value=m.preparedby||'';
+  document.getElementById('mm-desc').value=m.desc||'';
+  const mIds=['length','chest','underchest','waist','hip','chaklength','sleeves','armhole','frontneck','shoulder','chestpoint','chestspan','waistpoint','hiplength','sleeveloosing','daman','backneck'];
+  mIds.forEach(k=>{const e=document.getElementById('m-'+k);if(e)e.value=m.kurti?.[k]||'';});
+  const pIds=['length','hip','knee','sheet','waist','thigh','bottom'];
+  pIds.forEach(k=>{const e=document.getElementById('p-'+k);if(e)e.value=m.pent?.[k]||'';});
+  openModal('meas-modal');
+}
+
+function getMeasObj(){
+  const kurti={};
+  ['length','chest','underchest','waist','hip','chaklength','sleeves','armhole','frontneck','shoulder','chestpoint','chestspan','waistpoint','hiplength','sleeveloosing','daman','backneck'].forEach(k=>{kurti[k]=document.getElementById('m-'+k)?.value||'';});
+  const pent={};
+  ['length','hip','knee','sheet','waist','thigh','bottom'].forEach(k=>{pent[k]=document.getElementById('p-'+k)?.value||'';});
+  return {
+    id:editMId||uid(),
+    sno:document.getElementById('mm-sno').value,
+    custName:document.getElementById('mm-name').value.trim(),
+    custPhone:document.getElementById('mm-phone').value.trim(),
+    date:document.getElementById('mm-date').value,
+    trial:document.getElementById('mm-trial').value,
+    delivery:document.getElementById('mm-delivery').value,
+    bagNo:document.getElementById('mm-bagno').value.trim(),
+    designer:document.getElementById('mm-designer').value.trim(),
+    preparedby:document.getElementById('mm-preparedby').value.trim(),
+    desc:document.getElementById('mm-desc').value.trim(),
+    kurti, pent,
+    createdAt:editMId?(measurements.find(m=>m.id===editMId)?.createdAt||Date.now()):Date.now()
+  };
+}
+async function saveMeasurement(){
+  const m=getMeasObj();
+  if(!m.custName){toast('⚠ Enter customer name','');return;}
+  if(editMId){const i=measurements.findIndex(x=>x.id===editMId);if(i>=0)measurements[i]=m;}
+  else{
+    measurements.push(m);
+    if(!customers.find(c=>c.name.toLowerCase()===m.custName.toLowerCase())){
+      customers.push({id:uid(),name:m.custName,phone:m.custPhone,addr:''});
+      await autosave('ach_cust',customers); renderCust(); updateDLs();
+    }
+  }
+  await autosave('ach_meas',measurements);
+  closeModal('meas-modal'); renderMeas(); updateBadges();
+  toast('✓ Measurement saved','gold');
+}
+function printMeasurement(){
+  const m=getMeasObj();
+  if(!m.custName){toast('⚠ Enter customer name','');return;}
+  const html=buildMeasHTML(m);
+  writePF(html);
+  toast('✓ Opening measurement card…','gold');
+}
+function printMeasById(id){
+  const m=measurements.find(x=>x.id===id);
+  if(m){writePF(buildMeasHTML(m));toast('✓ Opening measurement card…','gold');}
+}
+
+function buildMeasHTML(m){
+  const kr=m.kurti||{};
+  const pt=m.pent||{};
+  const sn=settings;
+  const addr=sn.cardaddr||'B61 Palace Orchard, Phase 3, Kolar Road, Bhopal - 9300760840,8349201718';
+  const collHouse=sn.collhouse||'ANSH COLLECTION HOUSE';
+  const estLabel=sn.estlabel||'ESTIMATE';
+  const cardBrand=sn.cardbrand||'ANSH FASHION STUDIO';
+  const stamp=sn.cardstamp||'EXCLUSIVE FASHION';
+  const pc=sn.colorPrimary||'#1a1410';
+  const ac=sn.colorAccent||'#c9973a';
+
+  // helper: single row label | value
+  function r1(lbl,val){
+    return `<tr>
+      <td style="border:1px solid #555;padding:2px 5px;font-size:10px;font-weight:700;background:#f8f8f8">${lbl}</td>
+      <td style="border:1px solid #555;padding:2px 5px;font-size:10px;min-width:55px"> ${val||''}</td>
+    </tr>`;
+  }
+  // helper: two pairs side by side in one row
+  function r2(l1,v1,l2,v2){
+    return `<tr>
+      <td style="border:1px solid #555;padding:2px 5px;font-size:10px;font-weight:700;background:#f8f8f8;width:22%">${l1}</td>
+      <td style="border:1px solid #555;padding:2px 5px;font-size:10px;width:28%"> ${v1||''}</td>
+      <td style="border:1px solid #555;padding:2px 5px;font-size:10px;font-weight:700;background:#f8f8f8;width:22%">${l2||''}</td>
+      <td style="border:1px solid #555;padding:2px 5px;font-size:10px;width:28%"> ${v2||''}</td>
+    </tr>`;
+  }
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Measurement – ${m.custName||''}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;font-size:11px}
+    @page{size:A4;margin:6mm 8mm}
+    table{border-collapse:collapse;width:100%}
+    .outer{border:2px solid #333;width:100%}
+    .inner-row{display:flex}
+  </style>
+  </head><body>
+
+  <!-- ═══════════════════════════════════
+       TOP HALF  —  ESTIMATE CARD
+  ═══════════════════════════════════ -->
+  <div class="outer">
+
+    <!-- HEADER ROW -->
+    <table style="border-bottom:2px solid #333">
+      <tr>
+        <td style="padding:5px 8px;width:60%;vertical-align:top">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.04em">${collHouse}, ${addr}</div>
+          <div style="font-size:10px;color:#444;margin-top:1px">Ph: ${sn.phone||'9300760840, 8349201718'}</div>
+        </td>
+        <td style="padding:5px 8px;text-align:right;vertical-align:middle;border-left:1px solid #555">
+          <div style="font-size:16px;font-weight:700;letter-spacing:.08em">${estLabel}</div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- S.NO / NAME / DATE ROW -->
+    <table style="border-bottom:1px solid #555">
+      <tr>
+        <td style="padding:3px 8px;border-right:1px solid #555;width:20%">
+          <span style="font-size:10px">S.No. </span><span style="font-size:15px;font-weight:700;color:#c00">${m.sno||''}</span>
+        </td>
+        <td style="padding:3px 8px;border-right:1px solid #555;width:30%">
+          <span style="font-size:10px">Name :</span> <strong style="font-size:11px">${m.custName||''}</strong>
+        </td>
+        <td style="padding:3px 8px;border-right:1px solid #555;width:25%">
+          <div style="font-size:10px">Date :- <strong>${m.date||''}</strong></div>
+          <div style="font-size:10px">Contact No. :- <strong>${m.custPhone||''}</strong></div>
+          <div style="font-size:10px">Delivery Date <strong>${m.delivery||''}</strong></div>
+        </td>
+        <td style="padding:3px 8px;width:25%;vertical-align:top">
+          <div style="font-size:10px">Bag No :- <strong>${m.bagNo||''}</strong></div>
+          <div style="font-size:10px">Designed By :- <strong>${m.designer||''}</strong></div>
+          <div style="font-size:10px">Prepared By :- <strong>${m.preparedby||''}</strong></div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- TRIAL DATE ROW -->
+    <table style="border-bottom:1px solid #555">
+      <tr>
+        <td style="padding:2px 8px;font-size:10px">Trial Date &nbsp;&nbsp;<strong>${m.trial||''}</strong></td>
+      </tr>
+    </table>
+
+    <!-- MAIN MEASUREMENTS AREA -->
+    <div style="display:flex">
+
+      <!-- LEFT: KURTIES/BLOUSE + PENT -->
+      <div style="flex:1;border-right:1px solid #555">
+
+        <!-- KURTIES/BLOUSE HEADER -->
+        <div style="background:#e0e0e0;padding:2px 6px;font-size:11px;font-weight:700;border-bottom:1px solid #555">KURTIES/BLOUSE</div>
+        <table>
+          ${r2('LENGTH',kr.length,'','')}
+          ${r2('CHEST',kr.chest,'SHOULDER',kr.shoulder)}
+          ${r2('UNDER CHEST',kr.underchest,'CHEST POINT',kr.chestpoint)}
+          ${r2('WAIST',kr.waist,'CHEST SPAN',kr.chestspan)}
+          ${r2('HIP',kr.hip,'WAIST POINT',kr.waistpoint)}
+          ${r2('CHAK LENGTH',kr.chaklength,'HIP LENGTH',kr.hiplength)}
+          ${r2('SLEEVES',kr.sleeves,'','')}
+          ${r2('ARM HOLE',kr.armhole,'SLEEVE LOOSING',kr.sleeveloosing)}
+          ${r2('FRONT NECK',kr.frontneck,'DAMAN',kr.daman)}
+          <tr>
+            <td style="border:1px solid #555;padding:2px 5px;font-size:10px;font-weight:700;background:#f8f8f8">BACK NECK</td>
+            <td style="border:1px solid #555;padding:2px 5px;font-size:10px"> ${kr.backneck||''}</td>
+            <td style="border:1px solid #555;padding:2px 5px;font-size:10px" colspan="2"></td>
+          </tr>
+        </table>
+
+        <!-- PENT/SALWAR/PLAZZO HEADER -->
+        <div style="background:#e0e0e0;padding:2px 6px;font-size:11px;font-weight:700;border-top:1px solid #555;border-bottom:1px solid #555">PENT/SALWAR/PLAZZO</div>
+        <table>
+          ${r2('LENGTH',pt.length,'','')}
+          ${r2('HIP',pt.hip,'WAIST',pt.waist)}
+          ${r2('KNEE',pt.knee,'THIGH',pt.thigh)}
+          ${r2('SHEET',pt.sheet,'BOTTOM',pt.bottom)}
+        </table>
+
+      </div>
+
+      <!-- RIGHT: DESCRIPTION (with watermark) -->
+      <div style="width:38%;padding:6px 8px;position:relative;min-height:200px;border-left:none">
+        <div style="font-size:10px;font-weight:700;margin-bottom:4px">DESCRIPTION :-</div>
+        <div style="font-size:11px;color:#222;line-height:1.8">${m.desc||''}</div>
+        <!-- watermark -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);font-size:22px;font-weight:900;color:rgba(0,0,0,0.07);text-align:center;letter-spacing:.05em;white-space:nowrap;pointer-events:none">${stamp}</div>
+      </div>
+    </div>
+
+  </div><!-- end top half -->
+
+  <!-- PERFORATION / TEAR LINE -->
+  <div style="text-align:center;padding:3px 0;font-size:9px;letter-spacing:.2em;color:#999;border-top:1px dashed #bbb;border-bottom:1px dashed #bbb;margin:4px 0">
+    · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+  </div>
+
+  <!-- ═══════════════════════════════════
+       BOTTOM HALF  —  BILLING SLIP
+  ═══════════════════════════════════ -->
+  <div class="outer" style="margin-top:2px">
+
+    <!-- BRAND HEADER -->
+    <table style="border-bottom:2px solid #333">
+      <tr>
+        <td style="padding:5px 8px;width:15%;vertical-align:middle;border-right:1px solid #555">
+          <!-- ACH logo box -->
+          <div style="border:2px solid #333;display:inline-block;padding:2px 5px;margin-bottom:1px">
+            <div style="font-size:13px;font-weight:900;letter-spacing:.04em;color:#003399;line-height:1">ACH</div>
+            <div style="font-size:6px;color:#003399;letter-spacing:.02em">EXCLUSIVE FASHION</div>
+          </div>
+        </td>
+        <td style="padding:5px 10px;vertical-align:middle">
+          <div style="font-size:19px;font-weight:900;color:#003399;letter-spacing:.03em">${cardBrand}</div>
+          <div style="font-size:9px;color:#333;margin-top:1px">${addr}</div>
+          <div style="font-size:9px;color:#333">Ph: ${sn.phone||'9300760840, 8349201718'}</div>
+        </td>
+        <td style="padding:5px 8px;border-left:1px solid #555;width:28%;vertical-align:top">
+          <div style="font-size:10px">CONTACT NO. :- <strong>${m.custPhone||''}</strong></div>
+          <div style="font-size:10px;margin-top:2px">DESIGNED BY <strong>${m.designer||''}</strong></div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- INFO BAR -->
+    <table style="border-bottom:1px solid #555">
+      <tr>
+        <td style="padding:3px 8px;border-right:1px solid #555;width:22%">
+          <span style="font-size:10px">S. NO. </span><span style="font-size:15px;font-weight:700;color:#c00">${m.sno||''}</span>
+        </td>
+        <td style="padding:3px 8px;border-right:1px solid #555;width:30%">
+          <div style="font-size:10px">NAME :- <strong>${m.custName||''}</strong></div>
+        </td>
+        <td style="padding:3px 8px;border-right:1px solid #555;width:25%">
+          <div style="font-size:10px">TRIAL DATE <strong>${m.trial||''}</strong></div>
+          <div style="font-size:10px">DELIVERY DATE <strong>${m.delivery||''}</strong></div>
+        </td>
+        <td style="padding:3px 8px;width:23%"></td>
+      </tr>
+    </table>
+
+    <!-- ITEMS TABLE -->
+    <table style="border-bottom:1px solid #555">
+      <thead>
+        <tr style="background:#e8e8e8">
+          <th style="border:1px solid #555;padding:3px 6px;font-size:10px;width:8%;text-align:center">S. No.</th>
+          <th style="border:1px solid #555;padding:3px 6px;font-size:10px;text-align:left">Particular</th>
+          <th style="border:1px solid #555;padding:3px 6px;font-size:10px;width:18%;text-align:center">Rate</th>
+          <th style="border:1px solid #555;padding:3px 6px;font-size:10px;width:12%;text-align:center">Qty</th>
+          <th style="border:1px solid #555;padding:3px 6px;font-size:10px;width:20%;text-align:center">Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="border:1px solid #555;height:20px"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td></tr>
+        <tr><td style="border:1px solid #555;height:20px"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td></tr>
+        <tr><td style="border:1px solid #555;height:20px"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td></tr>
+        <tr><td style="border:1px solid #555;height:20px"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td><td style="border:1px solid #555"></td></tr>
+      </tbody>
+    </table>
+
+    <!-- TOTALS + CUSTOMER FOOTER -->
+    <table>
+      <tr>
+        <td style="padding:5px 8px;width:55%;vertical-align:bottom">
+          <div style="font-size:10px;color:#555;font-style:italic">${sn.footer||'Thank you for choosing ACH Fashion Studio!'}</div>
+        </td>
+        <td style="border-left:1px solid #555;width:45%;vertical-align:top">
+          <table style="width:100%">
+            <tr>
+              <td style="border-bottom:1px solid #555;border-right:1px solid #555;padding:3px 8px;font-size:10px;font-weight:700">Advance Amount</td>
+              <td style="border-bottom:1px solid #555;padding:3px 8px;font-size:10px;min-width:70px"></td>
+            </tr>
+            <tr>
+              <td style="border-bottom:1px solid #555;border-right:1px solid #555;padding:3px 8px;font-size:10px;font-weight:700">Balance Amount</td>
+              <td style="border-bottom:1px solid #555;padding:3px 8px;font-size:10px"></td>
+            </tr>
+            <tr>
+              <td colspan="2" style="padding:4px 8px;font-size:11px;font-weight:700;text-align:center;border-bottom:1px solid #555">CUSTOMER</td>
+            </tr>
+            <tr>
+              <td colspan="2" style="padding:3px 8px;font-size:9px;color:#333;text-align:center">ACH</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+  </div><!-- end bottom half -->
+
+  <script>window.onload=function(){window.print()}<\/script>
+  </body></html>`;
+}
+
+// ── MEASUREMENTS LIST ──
+function renderMeas(){
+  const el=document.getElementById('meas-list');
+  if(!measurements.length){el.innerHTML=`<div class="empty"><div class="emico">📏</div><div class="emt">No measurements yet</div><div class="ems">Start by creating a customer measurement card</div><button class="btn bp" onclick="openMeasureNew()">📏 New Measurement</button></div>`;return;}
+  el.innerHTML=`<div style="overflow-x:auto"><table><thead><tr>
+    <th>S.No</th><th>Customer</th>
+    <th class="hide-mob">Date</th><th class="hide-mob">Trial</th><th class="hide-mob">Delivery</th>
+    <th class="hide-mob">Designed By</th><th>Actions</th>
+  </tr></thead><tbody>
+  ${measurements.sort((a,b)=>b.createdAt-a.createdAt).map(m=>`<tr onclick="openMeasEdit('${m.id}')">
+    <td class="mono" style="font-weight:600">${m.sno||'—'}</td>
+    <td><div style="font-weight:500">${m.custName||'—'}</div><div class="muted">${m.custPhone||''}</div><div class="muted">${m.date||''}</div></td>
+    <td class="muted hide-mob">${m.date||'—'}</td>
+    <td class="muted hide-mob">${m.trial||'—'}</td>
+    <td class="muted hide-mob">${m.delivery||'—'}</td>
+    <td class="hide-mob">${m.designer||'—'}</td>
+    <td onclick="event.stopPropagation()"><div class="flex" style="flex-wrap:wrap;gap:4px">
+      <button class="btn bsm bs" onclick="printMeasById('${m.id}')">👁</button>
+      <button class="btn bsm bw" onclick="waMeasById('${m.id}')">📱</button>
+      <button class="btn bsm bem" onclick="mailMeasById('${m.id}')">✉</button>
+      <button class="btn bsm bd" onclick="delMeas('${m.id}')">🗑</button>
+    </div></td>
+  </tr>`).join('')}</tbody></table></div>`;
+}
+async function delMeas(id){
+  if(!confirm('Delete this measurement?'))return;
+  measurements=measurements.filter(m=>m.id!==id);
+  await autosave('ach_meas',measurements);
+  renderMeas(); updateBadges();
+  toast('Measurement deleted','');
+}
+
+// ── CUSTOMERS ──
+function renderCust(){
+  const el=document.getElementById('cust-list');
+  if(!customers.length){el.innerHTML=`<div class="empty"><div class="emico">👤</div><div class="emt">No customers yet</div><div class="ems">Auto-saved from invoices & measurements</div></div>`;return;}
+  el.innerHTML=`<table><thead><tr><th>Name</th><th>Phone</th><th>Address</th><th>Action</th></tr></thead><tbody>
+  ${customers.map(c=>`<tr><td style="font-weight:500">${c.name}</td><td>${c.phone||'—'}</td><td class="muted">${c.addr||'—'}</td>
+  <td><button class="btn bsm bd" onclick="delCust('${c.id}')">Delete</button></td></tr>`).join('')}
+  </tbody></table>`;
+}
+async function saveCustomer(){
+  const name=document.getElementById('cn-name').value.trim();
+  if(!name){toast('⚠ Name required','');return;}
+  customers.push({id:uid(),name,phone:document.getElementById('cn-phone').value.trim(),addr:document.getElementById('cn-addr').value.trim()});
+  await autosave('ach_cust',customers);
+  closeModal('cust-modal'); renderCust(); updateDLs(); toast('✓ Customer saved','gold');
+}
+async function delCust(id){
+  if(!confirm('Delete customer?'))return;
+  customers=customers.filter(c=>c.id!==id);
+  await autosave('ach_cust',customers); renderCust();
+}
+
+// ── PRODUCTS ──
+function renderProd(){
+  const el=document.getElementById('prod-list');
+  if(!products.length){el.innerHTML=`<div class="empty"><div class="emico">👗</div><div class="emt">No products yet</div><div class="ems">Add products to speed up billing</div><button class="btn bp" onclick="openModal('prod-modal')">+ Add Product</button></div>`;return;}
+  el.innerHTML=`<table><thead><tr><th>Name</th><th>Unit</th><th>Rate (₹)</th><th>Action</th></tr></thead><tbody>
+  ${products.map(p=>`<tr><td style="font-weight:500">${p.name}</td><td>${p.unit}</td><td class="mono">₹${fmt(p.rate||0)}</td>
+  <td><button class="btn bsm bd" onclick="delProd('${p.id}')">Delete</button></td></tr>`).join('')}
+  </tbody></table>`;
+}
+async function saveProduct(){
+  const name=document.getElementById('pn-name').value.trim();
+  if(!name){toast('⚠ Name required','');return;}
+  products.push({id:uid(),name,unit:document.getElementById('pn-unit').value,rate:parseFloat(document.getElementById('pn-rate').value)||0,desc:document.getElementById('pn-desc').value.trim()});
+  await autosave('ach_prod',products);
+  closeModal('prod-modal'); renderProd(); toast('✓ Product saved','gold');
+}
+async function delProd(id){
+  if(!confirm('Delete?'))return;
+  products=products.filter(p=>p.id!==id);
+  await autosave('ach_prod',products); renderProd();
+}
+
+// ── AUTO-SAVE HELPER ──
+// Central save function - called whenever data changes
+async function autosave(key, data){
+  try{
+    await window.storage.set(key, JSON.stringify(data));
+  }catch(e){ console.error('Autosave failed:', key, e); }
+}
+
+// ── INVOICE ACTIONS ──
+function doPDF(){ const inv=buildObj(); openPDFPreview(buildInvHTML(inv),'Invoice '+inv.invNum, inv.custName||settings.name, invCtx(inv)); }
+function pdfById(id){ const inv=invoices.find(i=>i.id===id); if(!inv)return; openPDFPreview(buildInvHTML(inv),'Invoice '+inv.invNum, inv.custName, invCtx(inv)); }
+function doWhatsApp(){ sendWA(buildObj()); }
+function doEmail(){ const inv=buildObj(); mailInv(inv); }
+function waById(id){ const inv=invoices.find(i=>i.id===id); if(inv)sendWA(inv); }
+function mailById(id){ const inv=invoices.find(i=>i.id===id); if(inv)mailInv(inv); }
+
+function invCtx(inv){
+  return {type:'invoice',obj:inv,custPhone:inv.custPhone,custEmail:inv.custEmail,custName:inv.custName,
+    waMsg:buildInvWAMsg(inv),
+    emailSubject:(settings.name||'ACH Fashion Studio')+' — Invoice '+inv.invNum,
+    emailBody:buildInvEmailBody(inv)};
+}
+function sendWA(inv){
+  const ph=(inv.custPhone||'').replace(/\D/g,'');
+  const waNum=settings.waphone||ph||'';
+  if(!waNum){toast('⚠ No phone number set','');return;}
+  window.open('https://wa.me/'+waNum+'?text='+encodeURIComponent(buildInvWAMsg(inv)),'_blank');
+}
+function mailInv(inv){
+  window.open('mailto:'+(inv.custEmail||'')+'?subject='+encodeURIComponent((settings.name||'ACH Fashion Studio')+' — Invoice '+inv.invNum)+'&body='+encodeURIComponent(buildInvEmailBody(inv)),'_blank');
+}
+function buildInvWAMsg(inv){
+  const pay=[];
+  if(settings.upi)pay.push('UPI: '+settings.upi);
+  if(settings.gpay)pay.push('GPay/PhonePe: '+settings.gpay);
+  if(settings.accno)pay.push('Bank: '+(settings.bank||'')+' | A/C: '+settings.accno+(settings.ifsc?' | IFSC: '+settings.ifsc:''));
+  return '*'+(settings.name||'ACH Fashion Studio')+'*\n'+
+    (settings.tagline?'_'+settings.tagline+'_\n':'')+
+    '\U0001f4cd '+(settings.addr||'')+'\n\U0001f4de '+(settings.phone||'')+'\n\n'+
+    'Invoice: *'+inv.invNum+'*\nDate: '+(inv.invDate||'')+' | Delivery: '+(inv.ddate||'')+'\n\n'+
+    '*Customer:* '+(inv.custName||'')+(inv.custPhone?' | \U0001f4de '+inv.custPhone:'')+'\n\n'+
+    '*Items:*\n'+(inv.items||[]).map(it=>'• '+it.name+' \u00d7 '+it.qty+' = \u20b9'+fmt(it.amt)).join('\n')+
+    '\n\n*Total: \u20b9'+fmt(inv.grand||0)+'*'+
+    '\nAdvance Paid: \u20b9'+fmt(inv.advance||0)+
+    '\n*Balance Due: \u20b9'+fmt(inv.balance||0)+'*'+
+    (pay.length?'\n\n\U0001f4b3 *Payment Details:*\n'+pay.join('\n'):'')+
+    '\n\n_'+(settings.footer||'Thank you for choosing us!')+'_';
+}
+function buildInvEmailBody(inv){
+  const pay=[];
+  if(settings.upi)pay.push('UPI: '+settings.upi);
+  if(settings.gpay)pay.push('GPay/PhonePe: '+settings.gpay);
+  if(settings.accno)pay.push('Bank: '+(settings.bank||'')+' | Account: '+settings.accno+(settings.ifsc?' | IFSC: '+settings.ifsc:''));
+  return 'Dear '+(inv.custName||'Customer')+',\n\n'+
+    'Please find your invoice details below.\n\nInvoice No: '+inv.invNum+'\nDate: '+(inv.invDate||'')+'\n'+
+    (inv.ddate?'Delivery Date: '+inv.ddate+'\n':'')+(inv.tdate?'Trial Date: '+inv.tdate+'\n':'')+
+    '\nItems:\n'+(inv.items||[]).map((it,i)=>(i+1)+'. '+it.name+' ('+it.qty+' x Rs.'+fmt(it.rate)+') = Rs.'+fmt(it.amt)).join('\n')+
+    '\n\nTotal Amount: Rs.'+fmt(inv.grand||0)+
+    '\nAdvance Paid: Rs.'+fmt(inv.advance||0)+
+    '\nBalance Due: Rs.'+fmt(inv.balance||0)+
+    (pay.length?'\n\nPayment Details:\n'+pay.join('\n'):'')+
+    '\n\n'+(settings.footer||'Thank you for your business!')+
+    '\n\nRegards,\n'+(settings.name||'ACH Fashion Studio')+
+    '\n'+(settings.phone||'')+(settings.email?'\n'+settings.email:'');
+}
+
+// ── MEASUREMENT ACTIONS ──
+function printMeasurement(){
+  const m=getMeasObj();
+  if(!m.custName){toast('\u26a0 Enter customer name','');return;}
+  openPDFPreview(buildMeasHTML(m),'Measurement Card — S.No.'+m.sno, m.custName, measCtx(m));
+}
+function printMeasById(id){
+  const m=measurements.find(x=>x.id===id);
+  if(!m)return;
+  openPDFPreview(buildMeasHTML(m),'Measurement Card — '+m.custName,'S.No. '+m.sno, measCtx(m));
+}
+function doMeasWhatsApp(){ const m=getMeasObj(); if(!m.custName){toast('\u26a0 Enter name','');return;} waMeas(m); }
+function doMeasEmail(){ const m=getMeasObj(); if(!m.custName){toast('\u26a0 Enter name','');return;} mailMeas(m); }
+function waMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)waMeas(m); }
+function mailMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)mailMeas(m); }
+function waMeas(m){ const ph=(m.custPhone||'').replace(/\D/g,''); const n=settings.waphone||ph||''; if(!n){toast('\u26a0 No phone number','');return;} window.open('https://wa.me/'+n+'?text='+encodeURIComponent(buildMeasWAMsg(m)),'_blank'); }
+function mailMeas(m){ window.open('mailto:?subject='+encodeURIComponent((settings.name||'ACH Fashion Studio')+' \u2014 Measurement Card')+'&body='+encodeURIComponent(buildMeasEmailBody(m)),'_blank'); }
+function measCtx(m){
+  return {type:'measurement',obj:m,custPhone:m.custPhone,custEmail:'',custName:m.custName,
+    waMsg:buildMeasWAMsg(m),
+    emailSubject:(settings.name||'ACH Fashion Studio')+' \u2014 Measurement Card',
+    emailBody:buildMeasEmailBody(m)};
+}
+function buildMeasWAMsg(m){
+  const kr=m.kurti||{},pt=m.pent||{};
+  const kl=[],pl=[];
+  const kmap={length:'Length',chest:'Chest',underchest:'Under Chest',waist:'Waist',hip:'Hip',chaklength:'Chak Length',sleeves:'Sleeves',armhole:'Arm Hole',frontneck:'Front Neck',shoulder:'Shoulder',chestpoint:'Chest Point',chestspan:'Chest Span',waistpoint:'Waist Point',hiplength:'Hip Length',sleeveloosing:'Sleeve Loosing',daman:'Daman',backneck:'Back Neck'};
+  const pmap={length:'Length',waist:'Waist',hip:'Hip',knee:'Knee',thigh:'Thigh',bottom:'Bottom',sheet:'Sheet'};
+  Object.entries(kmap).forEach(([k,l])=>{if(kr[k])kl.push(l+': '+kr[k]);});
+  Object.entries(pmap).forEach(([k,l])=>{if(pt[k])pl.push(l+': '+pt[k]);});
+  return '*'+(settings.name||'ACH Fashion Studio')+'*\n\U0001f4cf *Measurement Card*\n\n'+
+    '*Customer:* '+(m.custName||'')+(m.custPhone?' | \U0001f4de '+m.custPhone:'')+'\n'+
+    'S.No: '+m.sno+' | Date: '+(m.date||'')+'\n'+
+    (m.trial?'Trial: '+m.trial+'\n':'')+(m.delivery?'Delivery: '+m.delivery+'\n':'')+
+    (m.bagNo?'Bag No: '+m.bagNo+'\n':'')+(m.designer?'Designed By: '+m.designer+'\n':'')+
+    (kl.length?'\n*Kurties/Blouse:*\n'+kl.join('\n'):'')+
+    (pl.length?'\n\n*Pent/Salwar/Plazzo:*\n'+pl.join('\n'):'')+
+    (m.desc?'\n\nNotes: '+m.desc:'')+
+    '\n\n_'+(settings.footer||'Thank you for choosing us!')+'_';
+}
+function buildMeasEmailBody(m){
+  const kr=m.kurti||{},pt=m.pent||{};
+  const kmap={length:'Length',chest:'Chest',underchest:'Under Chest',waist:'Waist',hip:'Hip',chaklength:'Chak Length',sleeves:'Sleeves',armhole:'Arm Hole',frontneck:'Front Neck',shoulder:'Shoulder',chestpoint:'Chest Point',chestspan:'Chest Span',waistpoint:'Waist Point',hiplength:'Hip Length',sleeveloosing:'Sleeve Loosing',daman:'Daman',backneck:'Back Neck'};
+  const pmap={length:'Length',waist:'Waist',hip:'Hip',knee:'Knee',thigh:'Thigh',bottom:'Bottom',sheet:'Sheet'};
+  const klines=[],plines=[];
+  Object.entries(kmap).forEach(([k,l])=>{if(kr[k])klines.push(l+': '+kr[k]);});
+  Object.entries(pmap).forEach(([k,l])=>{if(pt[k])plines.push(l+': '+pt[k]);});
+  return 'Dear '+(m.custName||'Customer')+',\n\n'+
+    'Your measurement details at '+(settings.name||'ACH Fashion Studio')+':\n\n'+
+    'S.No: '+m.sno+'  Date: '+(m.date||'')+'\n'+
+    (m.trial?'Trial Date: '+m.trial+'\n':'')+(m.delivery?'Delivery Date: '+m.delivery+'\n':'')+
+    (m.bagNo?'Bag No: '+m.bagNo+'  ':'')+(m.designer?'Designed By: '+m.designer:'')+'\n\n'+
+    (klines.length?'--- KURTIES / BLOUSE ---\n'+klines.join('\n'):'')+
+    (plines.length?'\n\n--- PENT / SALWAR / PLAZZO ---\n'+plines.join('\n'):'')+
+    (m.desc?'\n\nNotes: '+m.desc:'')+
+    '\n\n'+(settings.footer||'Thank you for your business!')+
+    '\n\nRegards,\n'+(settings.name||'ACH Fashion Studio')+'\n'+(settings.phone||'');
+}
+
+// ── PDF PREVIEW ENGINE ──
+let _pdfHTML='', _pdfCtx=null, _lastPdfBlob=null, _lastPdfFilename='document.pdf';
+
+function showGenOverlay(show, txt, sub){
+  const ov=document.getElementById('gen-ov');
+  if(!ov)return;
+  ov.classList.toggle('hidden',!show);
+  if(txt) document.getElementById('gen-ov-txt').textContent=txt;
+  if(sub) document.getElementById('gen-ov-sub').textContent=sub;
+}
+
+function openPDFPreview(html, title, subtitle, ctx){
+  _pdfHTML=html; _pdfCtx=ctx||{}; _lastPdfBlob=null;
+  _lastPdfFilename=(title||'document').replace(/[^a-z0-9]/gi,'_')+'.pdf';
+  document.getElementById('pdf-title').textContent=title||'Document Preview';
+  document.getElementById('pdf-subtitle').textContent=subtitle||settings.name||'ACH Fashion Studio';
+  // Show mobile hint
+  const hint=document.getElementById('share-hint');
+  if(hint){
+    const isMob=window.innerWidth<=768;
+    hint.style.display=isMob?'flex':'none';
+  }
+  const iframe=document.getElementById('pdf-iframe');
+  const safe=html.replace(/<script>window\.onload[^<]*<\/script>/g,'');
+  const d=iframe.contentDocument||iframe.contentWindow.document;
+  d.open();d.write(safe);d.close();
+  document.getElementById('pdf-ov').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function closePDFPreview(){
+  document.getElementById('pdf-ov').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function pdfPrint(){
+  const iframe=document.getElementById('pdf-iframe');
+  const safe=_pdfHTML.replace(/<script>window\.onload[^<]*<\/script>/g,'');
+  const d=iframe.contentDocument||iframe.contentWindow.document;
+  d.open();d.write(safe+'<script>window.print()<\/script>');d.close();
+}
+
+// Generate real PDF using html2canvas + jsPDF
+async function generatePDFBlob(){
+  if(_lastPdfBlob) return _lastPdfBlob;
+  showGenOverlay(true,'Generating PDF…','Rendering document, please wait…');
+  try{
+    const iframe=document.getElementById('pdf-iframe');
+    const iDoc=iframe.contentDocument||iframe.contentWindow.document;
+    // Wait for iframe content to render
+    await new Promise(r=>setTimeout(r,600));
+    const canvas=await html2canvas(iDoc.body,{
+      scale:2, useCORS:true, allowTaint:true,
+      backgroundColor:'#ffffff',
+      width:794, // A4 at 96dpi
+      windowWidth:794
+    });
+    const imgData=canvas.toDataURL('image/jpeg',0.95);
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+    const pdfW=pdf.internal.pageSize.getWidth();
+    const pdfH=pdf.internal.pageSize.getHeight();
+    const canvasAR=canvas.height/canvas.width;
+    const imgH=pdfW*canvasAR;
+    // Multi-page support
+    if(imgH<=pdfH){
+      pdf.addImage(imgData,'JPEG',0,0,pdfW,imgH);
+    } else {
+      let yPos=0;
+      while(yPos<imgH){
+        if(yPos>0) pdf.addPage();
+        pdf.addImage(imgData,'JPEG',0,-yPos,pdfW,imgH);
+        yPos+=pdfH;
+      }
+    }
+    _lastPdfBlob=pdf.output('blob');
+    showGenOverlay(false);
+    return _lastPdfBlob;
+  }catch(e){
+    showGenOverlay(false);
+    console.error('PDF gen error:',e);
+    return null;
+  }
+}
+
+async function pdfDownload(){
+  if(!_pdfHTML){toast('\u26a0 No document','');return;}
+  const blob=await generatePDFBlob();
+  if(!blob){
+    // Fallback to print dialog
+    pdfPrint();
+    toast('\u2713 Choose \"Save as PDF\" in print dialog','gold');
+    return;
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=_lastPdfFilename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+  toast('\u2713 PDF saved to Downloads','gold');
+}
+
+// Share via Web Share API (mobile native) or fallback
+async function pdfShareWhatsApp(){
+  if(!_pdfCtx)return;
+  const ph=(_pdfCtx.custPhone||'').replace(/\D/g,'');
+  const n=settings.waphone||ph||'';
+  const msg=_pdfCtx.waMsg||'';
+
+  // Try Web Share API with file (Android Chrome, iOS Safari)
+  if(navigator.canShare){
+    try{
+      showGenOverlay(true,'Preparing PDF…','Getting your document ready to share…');
+      const blob=await generatePDFBlob();
+      showGenOverlay(false);
+      if(blob){
+        const file=new File([blob],_lastPdfFilename,{type:'application/pdf'});
+        if(navigator.canShare({files:[file]})){
+          await navigator.share({
+            files:[file],
+            title:document.getElementById('pdf-title').textContent,
+            text:msg.substring(0,300)+'…'
+          });
+          return;
+        }
+      }
+    }catch(e){
+      showGenOverlay(false);
+      if(e.name==='AbortError') return; // user cancelled
+      // fall through to WA link
+    }
+  }
+
+  // Download PDF first, then open WA with message
+  await pdfDownload();
+  setTimeout(()=>{
+    const url='https://wa.me/'+(n||'')+'?text='+encodeURIComponent(msg);
+    window.open(url,'_blank');
+    if(window.innerWidth<=768){
+      toast('\u2713 PDF saved! Now attach it in WhatsApp','gold');
+    }
+  },800);
+}
+
+async function pdfShareEmail(){
+  if(!_pdfCtx)return;
+  const em=_pdfCtx.custEmail||'';
+  const subj=_pdfCtx.emailSubject||'';
+  const body=_pdfCtx.emailBody||'';
+
+  // Try Web Share API with file first
+  if(navigator.canShare){
+    try{
+      showGenOverlay(true,'Preparing PDF…','Getting your document ready to share…');
+      const blob=await generatePDFBlob();
+      showGenOverlay(false);
+      if(blob){
+        const file=new File([blob],_lastPdfFilename,{type:'application/pdf'});
+        if(navigator.canShare({files:[file]})){
+          await navigator.share({files:[file],title:subj,text:body.substring(0,500)});
+          return;
+        }
+      }
+    }catch(e){
+      showGenOverlay(false);
+      if(e.name==='AbortError') return;
+    }
+  }
+
+  // Download PDF first, then open email client
+  await pdfDownload();
+  setTimeout(()=>{
+    window.open('mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
+    if(window.innerWidth<=768){
+      toast('\u2713 PDF saved! Now attach it in your Email app','gold');
+    }
+  },800);
+}
+
+// Legacy pdfWhatsApp / pdfEmail (direct, no PDF attach) kept for fallback
+function pdfWhatsApp(){return pdfShareWhatsApp();}
+function pdfEmail(){return pdfShareEmail();}
+
+// ── PREVIEW TAB (invoice form) ──
+function swTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='details')||(i===1&&t==='preview')));
+  document.getElementById('tp-details').classList.toggle('active',t==='details');
+  document.getElementById('tp-preview').classList.toggle('active',t==='preview');
+  if(t==='preview') renderPreview();
+}
+function renderPreview(){
+  const tot=calcTotals();
+  const inv=buildObj();
+  document.getElementById('prev-content').innerHTML=`
+  <div class="prev">
+    <div class="prevhd">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#fff">${settings.name||'ACH Fashion Studio'}</div>
+        <div style="font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-top:2px">${settings.tagline||'Exclusive Fashion'}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:6px;line-height:1.6">${settings.addr||''}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--gold);font-weight:600;letter-spacing:.14em;text-transform:uppercase">INVOICE</div>
+        <div style="font-family:'DM Mono',monospace;font-size:20px;color:#fff;margin-top:2px">${inv.invNum}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.6);margin-top:4px">Date: ${inv.invDate||'\u2014'}<br>Delivery: ${inv.ddate||'\u2014'}</div>
+        <div style="margin-top:7px"><span class="badge ${inv.status}">${uc(inv.status||'draft')}</span></div>
+      </div>
+    </div>
+    <div class="prevbody">
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:3px">CUSTOMER</div>
+        <div style="font-size:16px;font-weight:600;color:var(--ink)">${inv.custName||'\u2014'}</div>
+        <div style="font-size:12px;color:var(--ink-soft);margin-top:2px">${[inv.custPhone,inv.custAddr].filter(Boolean).join(' \u00b7 ')}</div>
+      </div>
+      <table><thead><tr><th>Particular</th><th class="tr-r">Rate</th><th style="text-align:center">Qty</th><th class="tr-r">Amount</th></tr></thead>
+      <tbody>${(inv.items||[]).map(it=>'<tr><td style="font-weight:500;color:var(--ink)">'+it.name+'</td><td class="tr-r mono">\u20b9'+fmt(it.rate)+'</td><td style="text-align:center">'+it.qty+'</td><td class="tr-r mono" style="font-weight:600">\u20b9'+fmt(it.amt)+'</td></tr>').join('')}</tbody></table>
+      <div style="display:flex;justify-content:flex-end;margin-top:14px">
+        <div class="totbox" style="width:240px;margin-top:0">
+          <div class="trow"><span>Total</span><span class="v">\u20b9${fmt(tot.grand)}</span></div>
+          <div class="trow"><span>Advance</span><span class="v">-\u20b9${fmt(tot.adv)}</span></div>
+          <div class="trow grand"><span>Balance Due</span><span class="v">\u20b9${fmt(tot.bal)}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── REPORTS ──
+function renderReports(){
+  const el=document.getElementById('reports-body');if(!el)return;
+  const pR=invoices.filter(i=>i.status==='paid').reduce((a,b)=>a+(b.grand||0),0);
+  const pdR=invoices.filter(i=>i.status==='pending').reduce((a,b)=>a+(b.grand||0),0);
+  const mon=new Date().toISOString().slice(0,7);
+  const mR=invoices.filter(i=>(i.invDate||'').startsWith(mon)).reduce((a,b)=>a+(b.grand||0),0);
+  el.innerHTML=`
+  <div class="srow">
+    <div class="sc"><div class="slbl">Paid Revenue</div><div class="sval gold mono">\u20b9${fmt(pR)}</div><div class="sbar"></div></div>
+    <div class="sc"><div class="slbl">Pending</div><div class="sval mono">\u20b9${fmt(pdR)}</div><div class="sbar"></div></div>
+    <div class="sc"><div class="slbl">This Month</div><div class="sval mono">\u20b9${fmt(mR)}</div><div class="sbar"></div></div>
+    <div class="sc"><div class="slbl">Avg Invoice</div><div class="sval mono">\u20b9${invoices.length?fmt(invoices.reduce((a,b)=>a+(b.grand||0),0)/invoices.length):0}</div><div class="sbar"></div></div>
+  </div>
+  <div class="card">
+    <div class="toolbar"><span style="font-weight:600;font-size:14px">Recent Invoices</span></div>
+    <table><thead><tr><th>Invoice</th><th>Customer</th><th>Date</th><th>Total</th><th>Balance</th><th>Status</th></tr></thead>
+    <tbody>${invoices.sort((a,b)=>b.createdAt-a.createdAt).slice(0,10).map(i=>'<tr><td class="mono">'+i.invNum+'</td><td>'+( i.custName||'\u2014')+'</td><td class="muted">'+(i.invDate||'\u2014')+'</td><td class="mono" style="font-weight:600">\u20b9'+fmt(i.grand||0)+'</td><td class="mono" style="color:'+((i.balance||0)>0?'#e67e22':'var(--success)')+'">\u20b9'+fmt(i.balance||0)+'</td><td><span class="badge '+(i.status||'draft')+'">'+(i.status||'draft').charAt(0).toUpperCase()+(i.status||'draft').slice(1)+'</span></td></tr>').join('')}</tbody></table>
+  </div>`;
+}
+
+// ── SETTINGS ──
+function swSet(n){
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('stab-'+n).classList.add('active');
+  document.getElementById('sp-'+n).classList.add('active');
+}
+function loadSet(){
+  const s=settings;
+  const sv=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||''};
+  const sc=(id,v)=>{const e=document.getElementById(id);if(e)e.checked=!!v};
+  sv('s-name',s.name);sv('s-tagline',s.tagline);sv('s-addr',s.addr);
+  sv('s-phone',s.phone);sv('s-phone2',s.phone2);sv('s-email',s.email);
+  sv('s-website',s.website);sv('s-waphone',s.waphone);
+  sv('s-collhouse',s.collhouse);sv('s-estlabel',s.estlabel);
+  sv('s-color-primary-hex',s.colorPrimary||'#1a1410');
+  sv('s-color-accent-hex',s.colorAccent||'#c9973a');
+  const cp=document.getElementById('s-color-primary');if(cp)cp.value=s.colorPrimary||'#1a1410';
+  const ca=document.getElementById('s-color-accent');if(ca)ca.value=s.colorAccent||'#c9973a';
+  updateColorPreview();
+  sv('s-invprefix',s.invPrefix||'ACH-');sv('s-invstart',s.invStart||1);
+  updateInvNumPreview();
+  sv('s-duedays',s.dueDays||15);sv('s-defpay',s.defPay||'Cash');
+  sv('s-footer',s.footer);sv('s-invnotes',s.invNotes);
+  sc('s-print-logo',s.printLogo);sc('s-print-sign',s.printSign!==false);sc('s-print-addr',s.printAddr!==false);
+  sv('s-cardtitle',s.cardtitle||'ESTIMATE');sv('s-cardbrand',s.cardbrand||'ANSH FASHION STUDIO');
+  sv('s-cardaddr',s.cardaddr||'B61 Palace Orchard, Phase 3, Kolar Road, Bhopal - 9300760840,8349201718');
+  sv('s-cardstamp',s.cardstamp||'EXCLUSIVE FASHION');
+  sv('s-upi',s.upi);sv('s-gpay',s.gpay);sv('s-bank',s.bank);
+  sv('s-accname',s.accname);sv('s-accno',s.accno);sv('s-ifsc',s.ifsc);
+}
+function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
+function gc(id){const e=document.getElementById(id);return e?e.checked:false}
+async function saveSettings(){
+  settings={
+    name:gv('s-name')||'ACH Fashion Studio',tagline:gv('s-tagline'),
+    addr:gv('s-addr'),phone:gv('s-phone'),phone2:gv('s-phone2'),
+    email:gv('s-email'),website:gv('s-website'),waphone:gv('s-waphone'),
+    collhouse:gv('s-collhouse')||'ANSH COLLECTION HOUSE',estlabel:gv('s-estlabel')||'ESTIMATE',
+    colorPrimary:gv('s-color-primary-hex')||'#1a1410',
+    colorAccent:gv('s-color-accent-hex')||'#c9973a',
+    invPrefix:gv('s-invprefix')||'ACH-',invStart:parseInt(gv('s-invstart'))||1,
+    dueDays:parseInt(gv('s-duedays'))||15,defPay:gv('s-defpay')||'Cash',
+    footer:gv('s-footer'),invNotes:gv('s-invnotes'),
+    printLogo:gc('s-print-logo'),printSign:gc('s-print-sign'),printAddr:gc('s-print-addr'),
+    cardtitle:gv('s-cardtitle')||'ESTIMATE',cardbrand:gv('s-cardbrand')||'ANSH FASHION STUDIO',
+    cardaddr:gv('s-cardaddr'),cardstamp:gv('s-cardstamp')||'EXCLUSIVE FASHION',
+    upi:gv('s-upi'),gpay:gv('s-gpay'),bank:gv('s-bank'),
+    accname:gv('s-accname'),accno:gv('s-accno'),ifsc:gv('s-ifsc')
+  };
+  await autosave('ach_set',settings);
+  toast('\u2713 Settings saved','gold');
+}
+function syncColor(type){
+  const hex=document.getElementById('s-color-'+type+'-hex')?.value;
+  const pick=document.getElementById('s-color-'+type);
+  if(pick&&hex&&/^#[0-9a-fA-F]{6}$/.test(hex))pick.value=hex;
+  updateColorPreview();
+}
+document.addEventListener('input',e=>{
+  if(e.target.id==='s-color-primary'){document.getElementById('s-color-primary-hex').value=e.target.value;updateColorPreview();}
+  if(e.target.id==='s-color-accent'){document.getElementById('s-color-accent-hex').value=e.target.value;updateColorPreview();}
+  if(e.target.id==='s-invprefix'||e.target.id==='s-invstart')updateInvNumPreview();
+  if(e.target.id==='s-name'){const p=document.getElementById('cprev-name');if(p)p.textContent=e.target.value||'ACH Fashion Studio';}
+  if(e.target.id==='s-tagline'){const p=document.getElementById('cprev-tag');if(p)p.textContent=e.target.value||'Exclusive Fashion';}
+});
+function updateColorPreview(){
+  const pc=document.getElementById('s-color-primary')?.value||'#1a1410';
+  const ac=document.getElementById('s-color-accent')?.value||'#c9973a';
+  const prev=document.getElementById('color-preview');
+  const mark=document.getElementById('cprev-mark');
+  const tag=document.getElementById('cprev-tag');
+  if(prev)prev.style.background=pc;
+  if(mark){mark.style.background=ac;mark.style.color=pc;}
+  if(tag)tag.style.color=ac;
+}
+function updateInvNumPreview(){
+  const pfx=gv('s-invprefix')||'ACH-';
+  const n=parseInt(gv('s-invstart'))||1;
+  const el=document.getElementById('invnum-preview');
+  if(el)el.textContent=pfx+String(n).padStart(4,'0');
+}
+function genNum(){
+  const pfx=settings.invPrefix||'ACH-';
+  const base=parseInt(settings.invStart)||1;
+  return pfx+String(invoices.length+base).padStart(4,'0');
+}
+function exportData(type){
+  let data={},fname='';
+  if(type==='all'){data={invoices,customers,products,measurements,settings};fname='ach_full_backup.json';}
+  else if(type==='invoices'){data=invoices;fname='ach_invoices.json';}
+  else if(type==='measurements'){data=measurements;fname='ach_measurements.json';}
+  else if(type==='customers'){data=customers;fname='ach_customers.json';}
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
+  toast('\u2713 Exported '+fname,'gold');
+}
+async function importData(){
+  const file=document.getElementById('import-file')?.files[0];
+  if(!file){toast('\u26a0 Select a file','');return;}
+  try{
+    const d=JSON.parse(await file.text());
+    if(d.invoices){invoices=d.invoices;await autosave('ach_inv',invoices);}
+    if(d.measurements){measurements=d.measurements;await autosave('ach_meas',measurements);}
+    if(d.customers){customers=d.customers;await autosave('ach_cust',customers);}
+    if(d.products){products=d.products;await autosave('ach_prod',products);}
+    if(d.settings){settings=d.settings;await autosave('ach_set',settings);loadSet();}
+    renderList();renderMeas();renderCust();renderProd();updateStats();updateBadges();
+    toast('\u2713 Import successful','gold');
+  }catch(e){toast('\u26a0 Invalid backup file','');}
+}
+async function clearData(type){
+  const msg={all:'EVERYTHING',invoices:'all invoices',measurements:'all measurements'};
+  if(!confirm('Delete '+msg[type]+'? This cannot be undone.'))return;
+  if(type==='all'||type==='invoices'){invoices=[];await autosave('ach_inv',invoices);}
+  if(type==='all'||type==='measurements'){measurements=[];await autosave('ach_meas',measurements);}
+  if(type==='all'){customers=[];products=[];await autosave('ach_cust',customers);await autosave('ach_prod',products);}
+  renderList();renderMeas();renderCust();renderProd();updateStats();updateBadges();
+  toast('\u2713 Cleared','gold');
+}
+
+// ── HELPERS ──
+function openModal(id){document.getElementById(id).classList.remove('hidden')}
+function closeModal(id){document.getElementById(id).classList.add('hidden')}
+document.addEventListener('click',e=>{if(e.target.classList.contains('ov'))closeModal(e.target.id)});
+
+// Mobile sidebar toggle
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar');
+  const bd=document.getElementById('sb-backdrop');
+  const open=sb.classList.toggle('open');
+  bd.classList.toggle('open',open);
+}
+
+// Mobile bottom nav
+function setMobNav(n){
+  document.querySelectorAll('.mob-nav-item').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('mn-'+n);
+  if(el) el.classList.add('active');
+  // Also sync sidebar
+  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('nav-'+n)?.classList.add('active');
+  // close sidebar on mobile
+  document.querySelector('.sidebar')?.classList.remove('open');
+  document.getElementById('sb-backdrop')?.classList.remove('open');
+}
+
+// Override showView to also update mobile nav
+const _origShowView=showView;
+function showView(n){
+  ['invoices','measurements','customers','products','reports','settings'].forEach(v=>{
+    document.getElementById('view-'+v).style.display=v===n?'':'none';
+    document.getElementById('nav-'+v)?.classList.toggle('active',v===n);
+  });
+  if(n==='reports') renderReports();
+  // sync mobile nav (only tabs that exist there)
+  const mobTabs=['invoices','measurements','customers','reports','settings'];
+  document.querySelectorAll('.mob-nav-item').forEach(b=>b.classList.remove('active'));
+  const mn=document.getElementById('mn-'+n);
+  if(mn) mn.classList.add('active');
+  // Close sidebar on mobile
+  document.querySelector('.sidebar')?.classList.remove('open');
+  document.getElementById('sb-backdrop')?.classList.remove('open');
+}
+
+// Make invoice list table scroll on mobile
+window.addEventListener('resize',()=>{
+  const hint=document.getElementById('share-hint');
+  if(hint&&!hint.closest('.pdf-ov').classList.contains('hidden')){
+    hint.style.display=window.innerWidth<=768?'flex':'none';
+  }
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='f-cname'){
+    const c=customers.find(x=>x.name===e.target.value);
+    if(c){document.getElementById('f-cphone').value=c.phone||'';document.getElementById('f-caddr').value=c.addr||'';}
+  }
+  if(e.target.id==='mm-name'){
+    const c=customers.find(x=>x.name===e.target.value);
+    if(c){document.getElementById('mm-phone').value=c.phone||'';}
+  }
+});
+function fmt(n){return Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function uc(s){return s?s.charAt(0).toUpperCase()+s.slice(1):''}
+function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2)}
+function today(){return new Date().toISOString().slice(0,10)}
+function genNum(){return 'ACH-'+String(invoices.length+1).padStart(4,'0')}
+let _tt;
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='toast show'+(type?' '+type:'');
+  clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
