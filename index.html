@@ -1648,29 +1648,20 @@ function getObjPhone(obj){
   return (obj.custPhone||obj.phone||'').replace(/\D/g,'');
 }
 
-// Open WhatsApp directly to a number (deep link on mobile, wa.me on desktop)
+// Open WhatsApp directly to a number
+// wa.me with window.location.href is the most reliable cross-platform method —
+// no share sheet, opens WhatsApp app directly on mobile if installed
 function openWhatsApp(fullPhone, message){
   if(!fullPhone){ toast('⚠ No phone number entered',''); return; }
-  const enc = encodeURIComponent(message||'');
+  const enc  = encodeURIComponent(message||'');
+  const url  = 'https://wa.me/' + fullPhone + '?text=' + enc;
+  // Using location.href on mobile opens WhatsApp directly without any share sheet
+  // window.open causes the "open with" dialog on Android — avoid it on mobile
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
   if(isMobile){
-    // Try whatsapp:// deep link first — opens the app directly, no share sheet
-    const deepLink = 'whatsapp://send?phone=' + fullPhone + '&text=' + enc;
-    // Fallback to wa.me after 1.5s if app not installed
-    const waLink   = 'https://wa.me/' + fullPhone + '?text=' + enc;
-    // Create hidden iframe to try deep link (avoids "app not found" error on some devices)
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    iframe.src = deepLink;
-    // Fallback timer — if WhatsApp didn't open, open wa.me
-    const timer = setTimeout(()=>{ window.open(waLink,'_blank'); }, 1500);
-    // If page loses focus, WhatsApp opened — cancel fallback
-    window.addEventListener('blur', ()=>clearTimeout(timer), {once:true});
-    setTimeout(()=>document.body.removeChild(iframe), 3000);
+    window.location.href = url;
   } else {
-    // Desktop: wa.me link opens WhatsApp Web
-    window.open('https://wa.me/' + fullPhone + '?text=' + enc, '_blank');
+    window.open(url, '_blank');
   }
 }
 
@@ -2092,9 +2083,7 @@ async function pdfShareWhatsApp(){
   await pdfDownload();
   setTimeout(()=>{
     openWhatsApp(n, msg);
-    if(window.innerWidth<=768){
-      toast('\u2713 PDF saved! Attach it in WhatsApp','gold');
-    }
+    toast('\u2713 PDF saved — attach it in WhatsApp','gold');
   },900);
 }
 
