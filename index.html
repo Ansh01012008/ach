@@ -1648,20 +1648,26 @@ function getObjPhone(obj){
   return (obj.custPhone||obj.phone||'').replace(/\D/g,'');
 }
 
-// Open WhatsApp directly to a number
-// wa.me with window.location.href is the most reliable cross-platform method —
-// no share sheet, opens WhatsApp app directly on mobile if installed
+// Open WhatsApp directly — no share sheet, no contact picker
 function openWhatsApp(fullPhone, message){
-  if(!fullPhone){ toast('⚠ No phone number entered',''); return; }
-  const enc  = encodeURIComponent(message||'');
-  const url  = 'https://wa.me/' + fullPhone + '?text=' + enc;
-  // Using location.href on mobile opens WhatsApp directly without any share sheet
-  // window.open causes the "open with" dialog on Android — avoid it on mobile
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if(isMobile){
-    window.location.href = url;
+  if(!fullPhone){ toast('\u26a0 No phone number entered',''); return; }
+  const enc = encodeURIComponent(message||'');
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if(isAndroid){
+    // Android Intent URL — bypasses "open with" dialog AND goes directly to chat
+    // package=com.whatsapp ensures WhatsApp is chosen, not Business
+    const intent = 'intent://send?phone=' + fullPhone
+      + '&text=' + enc
+      + '#Intent;scheme=whatsapp;package=com.whatsapp;end';
+    window.location.href = intent;
+  } else if(isIOS){
+    // iOS — whatsapp:// scheme goes directly to chat with number
+    window.location.href = 'whatsapp://send?phone=' + fullPhone + '&text=' + enc;
   } else {
-    window.open(url, '_blank');
+    // Desktop — WhatsApp Web
+    window.open('https://wa.me/' + fullPhone + '?text=' + enc, '_blank');
   }
 }
 
