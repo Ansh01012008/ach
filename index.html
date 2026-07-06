@@ -2,11 +2,36 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ACH Fashion Studio — Billing</title>
+<meta name="description" content="ACH Fashion Studio — Professional billing, invoicing and measurement management">
+<meta name="theme-color" content="#1a1410">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACH Studio">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="ACH Studio">
+<link rel="manifest" href="data:application/json,{
+  &quot;name&quot;: &quot;ACH Fashion Studio&quot;,
+  &quot;short_name&quot;: &quot;ACH Studio&quot;,
+  &quot;description&quot;: &quot;Professional billing and measurements&quot;,
+  &quot;start_url&quot;: &quot;.&quot;,
+  &quot;display&quot;: &quot;standalone&quot;,
+  &quot;background_color&quot;: &quot;#faf7f2&quot;,
+  &quot;theme_color&quot;: &quot;#1a1410&quot;,
+  &quot;orientation&quot;: &quot;portrait-primary&quot;,
+  &quot;icons&quot;: [
+    { &quot;src&quot;: &quot;data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'&gt;&lt;rect width='192' height='192' rx='32' fill='%231a1410'/&gt;&lt;rect x='24' y='24' width='144' height='144' rx='20' fill='%23c9973a'/&gt;&lt;text x='96' y='130' font-family='serif' font-size='96' font-weight='bold' text-anchor='middle' fill='%231a1410'&gt;A&lt;/text&gt;&lt;/svg&gt;&quot;, &quot;sizes&quot;: &quot;192x192&quot;, &quot;type&quot;: &quot;image/svg+xml&quot;, &quot;purpose&quot;: &quot;any maskable&quot; },
+    { &quot;src&quot;: &quot;data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'&gt;&lt;rect width='512' height='512' rx='80' fill='%231a1410'/&gt;&lt;rect x='56' y='56' width='400' height='400' rx='56' fill='%23c9973a'/&gt;&lt;text x='256' y='356' font-family='serif' font-size='280' font-weight='bold' text-anchor='middle' fill='%231a1410'&gt;A&lt;/text&gt;&lt;/svg&gt;&quot;, &quot;sizes&quot;: &quot;512x512&quot;, &quot;type&quot;: &quot;image/svg+xml&quot;, &quot;purpose&quot;: &quot;any maskable&quot; }
+  ]
+}">
+<!-- Apple Touch Icon (for iOS home screen) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231a1410'/><rect x='20' y='20' width='140' height='140' rx='20' fill='%23c9973a'/><text x='90' y='125' font-family='serif' font-size='90' font-weight='bold' text-anchor='middle' fill='%231a1410'>A</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 :root{--ink:#1a1410;--ink-soft:#4a3f35;--ink-muted:#8c7d72;--gold:#c9973a;--gold-light:#f0ddb0;--gold-pale:#fdf6e8;--cream:#faf7f2;--white:#fff;--border:#e8ddd0;--danger:#c0392b;--success:#27ae60;--sh:0 1px 4px rgba(26,20,16,.08);--shlg:0 12px 48px rgba(26,20,16,.16)}
@@ -226,6 +251,18 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
 .gen-ov.hidden{display:none}
 .gen-ov-txt{color:#fff;font-size:15px;font-weight:600}
 .gen-ov-sub{color:rgba(255,255,255,.6);font-size:13px}
+/* PWA INSTALL BANNER */
+.pwa-banner{position:fixed;bottom:70px;left:12px;right:12px;background:var(--ink);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:200;box-shadow:var(--shlg);border:1.5px solid var(--gold);transform:translateY(120px);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.pwa-banner.show{transform:translateY(0);opacity:1}
+.pwa-banner-ico{width:42px;height:42px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);font-weight:700;flex-shrink:0}
+.pwa-banner-txt{flex:1;min-width:0}
+.pwa-banner-title{font-size:14px;font-weight:700;color:#fff}
+.pwa-banner-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px}
+.pwa-banner-btn{background:var(--gold);color:var(--ink);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.pwa-dismiss{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:18px;padding:2px;flex-shrink:0}
+/* SHARE BUTTON */
+.bshare{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.bshare:hover{background:linear-gradient(135deg,#5a6fd6,#6a3f96)}
 /* PHONE INPUT WITH COUNTRY CODE */
 .ph-wrap{display:flex;border:1.5px solid var(--border);border-radius:7px;overflow:hidden;background:var(--cream);transition:border-color .15s}
 .ph-wrap:focus-within{border-color:var(--gold);background:#fff}
@@ -340,6 +377,8 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
         <button class="stab" id="stab-measurement" onclick="swSet('measurement')">📏 Measurement Card</button>
         <button class="stab" id="stab-payment" onclick="swSet('payment')">💳 Payment</button>
         <button class="stab" id="stab-data" onclick="swSet('data')">🗃 Data & Backup</button>
+        <button class="stab" id="stab-whatsapp" onclick="swSet('whatsapp')">📱 WA Templates</button>
+        <button class="stab" id="stab-firebase" onclick="swSet('firebase')">🔥 Firebase</button>
       </div>
 
       <!-- STUDIO INFO -->
@@ -572,6 +611,152 @@ Regards,
             <button class="btn bd" onclick="clearData('measurements')">Clear All Measurements</button>
             <button class="btn bd" onclick="clearData('all')">⚠ Reset Everything</button>
           </div>
+        </div>
+      </div>
+
+      <!-- WHATSAPP TEMPLATES -->
+      <div class="spanel" id="sp-whatsapp">
+        <div class="scard">
+          <div class="scard-t">📱 WhatsApp Message Template — Invoice</div>
+          <div class="scard-d">Customize exactly what message is sent when you tap WhatsApp on an invoice. Use variables below — they get replaced with real values automatically.</div>
+          <div style="margin-top:12px;background:#f0f4ff;border-radius:8px;padding:12px 16px;border-left:3px solid #4285F4;font-size:12px;color:var(--ink-soft);line-height:2">
+            <strong style="color:var(--ink)">Available variables:</strong><br>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{studio}</code> Studio name &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{tagline}</code> Tagline &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{invoice}</code> Invoice number &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{name}</code> Customer name &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{phone}</code> Customer phone &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{date}</code> Invoice date &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{delivery}</code> Delivery date &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{items}</code> Item list &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{total}</code> Grand total &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{advance}</code> Advance paid &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{balance}</code> Balance due &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{payment}</code> Payment details &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{footer}</code> Footer note &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{addr}</code> Studio address &nbsp;
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{studio_phone}</code> Studio phone
+          </div>
+          <div class="fg" style="margin-top:14px">
+            <label>Invoice WhatsApp Message</label>
+            <textarea id="s-wa-template" rows="12" style="font-family:'DM Mono',monospace;font-size:12px;line-height:1.7"></textarea>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn bs bsm" onclick="resetWATemplate('invoice')">↺ Reset to Default</button>
+            <button class="btn bp bsm" onclick="previewWATemplate('invoice')">👁 Preview</button>
+          </div>
+          <div id="wa-template-preview" style="display:none;margin-top:12px;background:#e8f5e9;border-radius:8px;padding:14px;font-size:12.5px;white-space:pre-wrap;line-height:1.7;border:1px solid #c8e6c9;font-family:'DM Mono',monospace"></div>
+        </div>
+
+        <div class="scard" style="margin-top:16px">
+          <div class="scard-t">📏 WhatsApp Message Template — Measurement Card</div>
+          <div class="scard-d">Message sent when you tap WhatsApp on a measurement card.</div>
+          <div style="margin-top:12px;background:#f0f4ff;border-radius:8px;padding:12px 16px;border-left:3px solid #4285F4;font-size:12px;color:var(--ink-soft);line-height:2">
+            <strong style="color:var(--ink)">Available variables:</strong><br>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{studio}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{name}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{phone}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{sno}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{date}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{trial}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{delivery}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{bagno}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{designer}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{kurtiMeas}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{pentMeas}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{desc}</code>
+            <code style="background:#e8f0fe;padding:1px 5px;border-radius:3px">{footer}</code>
+          </div>
+          <div class="fg" style="margin-top:14px">
+            <label>Measurement WhatsApp Message</label>
+            <textarea id="s-meas-template" rows="10" style="font-family:'DM Mono',monospace;font-size:12px;line-height:1.7"></textarea>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn bs bsm" onclick="resetWATemplate('meas')">↺ Reset to Default</button>
+            <button class="btn bp bsm" onclick="previewWATemplate('meas')">👁 Preview</button>
+          </div>
+          <div id="meas-template-preview" style="display:none;margin-top:12px;background:#e8f5e9;border-radius:8px;padding:14px;font-size:12.5px;white-space:pre-wrap;line-height:1.7;border:1px solid #c8e6c9;font-family:'DM Mono',monospace"></div>
+        </div>
+      </div>
+
+      <!-- FIREBASE PANEL -->
+      <div class="spanel" id="sp-firebase">
+        <div class="scard" style="border-color:#FF6F00">
+          <div class="scard-t" style="color:#FF6F00">🔥 Firebase — Cloud Sync</div>
+          <div class="scard-d">Connect Firebase Firestore to sync all your invoices, measurements and customers across devices in real time. Your data is also backed up to local storage as fallback.</div>
+
+          <!-- Status bar -->
+          <div id="fb-status" style="margin-top:14px;padding:10px 16px;border-radius:8px;background:var(--cream);border:1.5px solid var(--border);font-size:13px;color:var(--ink-muted);display:flex;align-items:center;gap:8px">
+            <span id="fb-status-dot" style="width:10px;height:10px;border-radius:50%;background:#ccc;flex-shrink:0"></span>
+            <span id="fb-status-text">Not configured</span>
+          </div>
+
+          <!-- Setup steps -->
+          <div style="margin-top:16px;background:#fff8f0;border-radius:8px;padding:14px 16px;border-left:3px solid #FF6F00">
+            <div style="font-size:12px;font-weight:700;color:#FF6F00;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em">📋 One-Time Setup (Free)</div>
+            <ol style="font-size:12.5px;color:var(--ink-soft);line-height:2.2;padding-left:18px">
+              <li>Go to <a href="https://console.firebase.google.com" target="_blank" style="color:#FF6F00;font-weight:600">console.firebase.google.com</a> → Sign in with Google</li>
+              <li>Click <strong>Create a project</strong> → Name it <em>ach-billing</em> → Disable Analytics → Create</li>
+              <li>Click <strong>Firestore Database</strong> (left sidebar) → <strong>Create database</strong> → <strong>Start in test mode</strong> → Choose a location near you → Enable</li>
+              <li>Click ⚙️ (gear icon, top left) → <strong>Project settings</strong> → Scroll down → Under <em>Your apps</em> → Click <strong>&lt;/&gt; Web</strong> → Register app → Copy the <code>firebaseConfig</code> object</li>
+              <li>Paste each value from the config into the fields below → Click <strong>Save & Connect</strong></li>
+            </ol>
+          </div>
+
+          <!-- Config fields -->
+          <div class="g2" style="margin-top:16px">
+            <div class="fg full">
+              <label>API Key</label>
+              <input id="s-fb-apikey" placeholder="AIzaSy..." autocomplete="off" style="font-family:'DM Mono',monospace;font-size:12px">
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">firebaseConfig.apiKey</div>
+            </div>
+            <div class="fg">
+              <label>Project ID</label>
+              <input id="s-fb-projectid" placeholder="ach-billing-xxxxx" autocomplete="off" style="font-family:'DM Mono',monospace;font-size:12px">
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">firebaseConfig.projectId</div>
+            </div>
+            <div class="fg">
+              <label>Auth Domain</label>
+              <input id="s-fb-authdomain" placeholder="ach-billing.firebaseapp.com" autocomplete="off" style="font-family:'DM Mono',monospace;font-size:12px">
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">firebaseConfig.authDomain</div>
+            </div>
+            <div class="fg">
+              <label>Storage Bucket</label>
+              <input id="s-fb-storagebucket" placeholder="ach-billing.appspot.com" autocomplete="off" style="font-family:'DM Mono',monospace;font-size:12px">
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">firebaseConfig.storageBucket</div>
+            </div>
+            <div class="fg">
+              <label>Messaging Sender ID</label>
+              <input id="s-fb-msgsenderid" placeholder="123456789012" autocomplete="off" style="font-family:'DM Mono',monospace;font-size:12px">
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">firebaseConfig.messagingSenderId</div>
+            </div>
+            <div class="fg full">
+              <label>App ID</label>
+              <input id="s-fb-appid" placeholder="1:123456789012:web:abc123..." autocomplete="off" style="font-family:'DM Mono',monospace;font-size:12px">
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:3px">firebaseConfig.appId</div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn bp" onclick="saveAndConnectFirebase()" style="background:#FF6F00">🔥 Save & Connect</button>
+            <button class="btn bs" onclick="testFirebase()">🧪 Test Connection</button>
+            <button class="btn bs" onclick="syncToFirebase()" id="fb-sync-btn" style="display:none">☁ Sync All Data Now</button>
+            <button class="btn bd" onclick="disconnectFirebase()" id="fb-disconnect-btn" style="display:none">Disconnect</button>
+          </div>
+        </div>
+
+        <div class="scard" style="margin-top:16px" id="fb-rules-card" style="display:none">
+          <div class="scard-t">🔒 Firestore Security Rules</div>
+          <div class="scard-d">Paste these rules in Firebase Console → Firestore → Rules tab to secure your data.</div>
+          <pre style="margin-top:12px;background:#1a1410;color:#c9973a;border-radius:8px;padding:14px;font-size:11.5px;overflow-x:auto;line-height:1.7">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /ach-billing/{document} {
+      allow read, write: if true; // Change to auth check in production
+    }
+  }
+}</pre>
+          <div style="font-size:11px;color:var(--ink-muted);margin-top:8px">⚠ Test mode allows all reads/writes for 30 days. Update rules before going live.</div>
         </div>
       </div>
 
@@ -828,13 +1013,90 @@ Regards,
 
 <script>
 // ══ STORAGE ══
+// ── FIREBASE ENGINE ──
+let _fbDb = null;
+let _fbReady = false;
+
+function initFirebase(cfg){
+  try{
+    if(!cfg||!cfg.apiKey||!cfg.projectId) return false;
+    // If already initialized with same project, reuse
+    if(firebase.apps.length){
+      const existing = firebase.apps[0];
+      if(existing.options.projectId === cfg.projectId){
+        _fbDb = firebase.firestore();
+        _fbReady = true;
+        return true;
+      }
+      // Different project — delete and reinit
+      existing.delete();
+    }
+    firebase.initializeApp(cfg);
+    _fbDb = firebase.firestore();
+    _fbReady = true;
+    console.log('Firebase connected:', cfg.projectId);
+    return true;
+  }catch(e){
+    console.error('Firebase init error:', e);
+    _fbReady = false;
+    return false;
+  }
+}
+
+// Smart storage: Firebase if ready, else window.storage fallback
 const ST={
-  async get(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null}catch{return null}},
-  async set(k,v){try{await window.storage.set(k,JSON.stringify(v))}catch(e){console.error(e)}}
+  async get(k){
+    if(_fbReady && _fbDb){
+      try{
+        const doc = await _fbDb.collection('ach-billing').doc(k).get();
+        if(doc.exists) return JSON.parse(doc.data().value);
+        return null;
+      }catch(e){ console.warn('FB get failed, using local:', e); }
+    }
+    try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null}catch{return null}
+  },
+  async set(k,v){
+    const str = JSON.stringify(v);
+    // Write to both Firebase AND local storage for resilience
+    if(_fbReady && _fbDb){
+      try{
+        await _fbDb.collection('ach-billing').doc(k).set({value:str, updatedAt:Date.now()});
+      }catch(e){ console.warn('FB set failed:', e); }
+    }
+    try{await window.storage.set(k,str)}catch(e){console.error(e)}
+  }
 };
 let invoices=[],customers=[],products=[],measurements=[],settings={},editId=null,editMId=null,rowCnt=0;
 
 async function init(){
+  // Load settings first (needed for Firebase config)
+  settings = await (async()=>{
+    try{const r=await window.storage.get('ach_set');return r?JSON.parse(r.value):null}catch{return null}
+  })() || {};
+
+  // ── HARDCODED FIREBASE CONFIG ──
+  const _hardcodedFB = {
+    apiKey:            "AIzaSyD-F1B_OkEi1CdIVH_kC5KkovPm4kbSdyc",
+    authDomain:        "ach-billing-e347a.firebaseapp.com",
+    projectId:         "ach-billing-e347a",
+    storageBucket:     "ach-billing-e347a.firebasestorage.app",
+    messagingSenderId: "312474917217",
+    appId:             "1:312474917217:web:f00da7522b8ee949a08d20"
+  };
+  // Use hardcoded config if no custom config saved in settings
+  const fbCfg = (settings.fbApiKey && settings.fbProjectId) ? {
+    apiKey:            settings.fbApiKey,
+    authDomain:        settings.fbAuthDomain||settings.fbProjectId+'.firebaseapp.com',
+    projectId:         settings.fbProjectId,
+    storageBucket:     settings.fbStorageBucket||settings.fbProjectId+'.appspot.com',
+    messagingSenderId: settings.fbMsgSenderId||'',
+    appId:             settings.fbAppId||''
+  } : _hardcodedFB;
+
+  const ok = initFirebase(fbCfg);
+  if(ok) updateFirebaseStatus('connected');
+
+  // Now load all data (uses Firebase if connected, local otherwise)
   invoices    = await ST.get('ach_inv')  || [];
   customers   = await ST.get('ach_cust') || [];
   products    = await ST.get('ach_prod') || [];
@@ -854,7 +1116,17 @@ async function init(){
     cardtitle:'ESTIMATE', cardbrand:'ANSH FASHION STUDIO',
     cardaddr:'B61 Palace Orchard, Phase 3, Kolar Road, Bhopal - 9300760840,8349201718',
     cardstamp:'EXCLUSIVE FASHION',
-    upi:'', gpay:'', bank:'', accname:'', accno:'', ifsc:''
+    upi:'', gpay:'', bank:'', accname:'', accno:'', ifsc:'',
+    ejsPubKey:'', ejsService:'', ejsTemplate:'',
+    defaultCC:'91',
+    fbApiKey:'AIzaSyD-F1B_OkEi1CdIVH_kC5KkovPm4kbSdyc',
+    fbAuthDomain:'ach-billing-e347a.firebaseapp.com',
+    fbProjectId:'ach-billing-e347a',
+    fbStorageBucket:'ach-billing-e347a.firebasestorage.app',
+    fbMsgSenderId:'312474917217',
+    fbAppId:'1:312474917217:web:f00da7522b8ee949a08d20',
+    waMsgTemplate:'',
+    measMsgTemplate:''
   };
   loadSet(); renderList(); renderMeas(); renderCust(); renderProd(); renderReports(); updateStats(); updateBadges(); updateDLs();
   initEmailJS();
@@ -1728,6 +2000,152 @@ document.addEventListener('input', e=>{
   if(['s-ejs-pubkey','s-ejs-service','s-ejs-template'].includes(e.target.id)) updateEJSStatus();
 });
 
+// ── FIREBASE FUNCTIONS ──
+function updateFirebaseStatus(state){
+  const dot  = document.getElementById('fb-status-dot');
+  const txt  = document.getElementById('fb-status-text');
+  const sync = document.getElementById('fb-sync-btn');
+  const disc = document.getElementById('fb-disconnect-btn');
+  if(!dot) return;
+  if(state==='connected'){
+    dot.style.background='#27ae60';
+    txt.textContent='✓ Connected — data syncs to Firebase in real time';
+    document.getElementById('fb-status').style.background='#e8f8ee';
+    document.getElementById('fb-status').style.borderColor='#a8e6be';
+    if(sync) sync.style.display='';
+    if(disc) disc.style.display='';
+    const rulesCard = document.getElementById('fb-rules-card');
+    if(rulesCard) rulesCard.style.display='';
+  } else if(state==='saved'){
+    dot.style.background='#e67e22';
+    txt.textContent='⚠ Credentials saved — click Save & Connect to activate';
+    document.getElementById('fb-status').style.background='#fff3e0';
+    document.getElementById('fb-status').style.borderColor='#fad4a0';
+  } else if(state==='error'){
+    dot.style.background='#c0392b';
+    txt.textContent='✗ Connection failed — check your credentials';
+    document.getElementById('fb-status').style.background='#fdf0ef';
+    document.getElementById('fb-status').style.borderColor='#f5c6c2';
+  } else {
+    dot.style.background='#ccc';
+    txt.textContent='Not configured — enter your Firebase credentials below';
+    document.getElementById('fb-status').style.background='var(--cream)';
+    document.getElementById('fb-status').style.borderColor='var(--border)';
+    if(sync) sync.style.display='none';
+    if(disc) disc.style.display='none';
+  }
+}
+
+async function saveAndConnectFirebase(){
+  // Save settings first
+  await saveSettings();
+  const cfg={
+    apiKey:gv('s-fb-apikey'), authDomain:gv('s-fb-authdomain')||gv('s-fb-projectid')+'.firebaseapp.com',
+    projectId:gv('s-fb-projectid'), storageBucket:gv('s-fb-storagebucket')||gv('s-fb-projectid')+'.appspot.com',
+    messagingSenderId:gv('s-fb-msgsenderid'), appId:gv('s-fb-appid')
+  };
+  if(!cfg.apiKey||!cfg.projectId){ toast('⚠ API Key and Project ID are required',''); return; }
+  showGenOverlay(true,'Connecting to Firebase…','Testing connection…');
+  const ok = initFirebase(cfg);
+  if(ok){
+    // Test with a write
+    try{
+      await _fbDb.collection('ach-billing').doc('_test').set({ping:Date.now()});
+      await _fbDb.collection('ach-billing').doc('_test').delete();
+      showGenOverlay(false);
+      updateFirebaseStatus('connected');
+      toast('✓ Firebase connected!','gold');
+    }catch(e){
+      showGenOverlay(false);
+      updateFirebaseStatus('error');
+      toast('✗ Firebase write failed: '+e.message,'');
+    }
+  } else {
+    showGenOverlay(false);
+    updateFirebaseStatus('error');
+    toast('✗ Firebase init failed — check credentials','');
+  }
+}
+
+async function testFirebase(){
+  if(!_fbReady){ toast('⚠ Not connected — click Save & Connect first',''); return; }
+  showGenOverlay(true,'Testing Firebase…','Writing test document…');
+  try{
+    await _fbDb.collection('ach-billing').doc('_test').set({ping:Date.now(), test:true});
+    await _fbDb.collection('ach-billing').doc('_test').delete();
+    showGenOverlay(false);
+    toast('✓ Firebase is working correctly!','gold');
+  }catch(e){
+    showGenOverlay(false);
+    toast('✗ Test failed: '+e.message,'');
+  }
+}
+
+async function syncToFirebase(){
+  if(!_fbReady){ toast('⚠ Not connected',''); return; }
+  showGenOverlay(true,'Syncing to Firebase…','Uploading all data…');
+  try{
+    await ST.set('ach_inv',  invoices);
+    await ST.set('ach_cust', customers);
+    await ST.set('ach_prod', products);
+    await ST.set('ach_meas', measurements);
+    await ST.set('ach_set',  settings);
+    showGenOverlay(false);
+    toast('✓ All data synced to Firebase!','gold');
+  }catch(e){
+    showGenOverlay(false);
+    toast('✗ Sync failed: '+e.message,'');
+  }
+}
+
+function disconnectFirebase(){
+  if(!confirm('Disconnect Firebase? Your local data stays intact.')) return;
+  _fbReady = false; _fbDb = null;
+  settings.fbApiKey=''; settings.fbProjectId='';
+  autosave('ach_set', settings);
+  loadSet();
+  updateFirebaseStatus('none');
+  toast('Firebase disconnected','');
+}
+
+// ── WA TEMPLATE FUNCTIONS ──
+function resetWATemplate(type){
+  if(type==='invoice'){
+    const el=document.getElementById('s-wa-template');
+    if(el) el.value=getDefaultWATemplate();
+  } else {
+    const el=document.getElementById('s-meas-template');
+    if(el) el.value=getDefaultMeasTemplate();
+  }
+  toast('\u2713 Template reset to default','gold');
+}
+
+function previewWATemplate(type){
+  // Build a dummy object to preview
+  const dummyInv={
+    invNum:'ACH-0001', custName:'Priya Sharma', custPhone:'9876543210',
+    invDate:'2026-07-07', ddate:'2026-07-14', tdate:'2026-07-10',
+    items:[{name:'Kurti Stitching',qty:1,amt:800},{name:'Blouse',qty:2,amt:600}],
+    grand:1400, advance:500, balance:900
+  };
+  const dummyMeas={
+    custName:'Priya Sharma', custPhone:'9876543210', sno:'001',
+    date:'2026-07-07', trial:'2026-07-10', delivery:'2026-07-14',
+    bagNo:'B-12', designer:'Rahul',
+    kurti:{length:'42',chest:'38',waist:'34',hip:'40',shoulder:'14',sleeves:'24'},
+    pent:{length:'40',waist:'32',hip:'40',knee:'18',bottom:'14'}
+  };
+  if(type==='invoice'){
+    const msg=buildInvWAMsg(dummyInv);
+    const el=document.getElementById('wa-template-preview');
+    if(el){el.textContent=msg;el.style.display='';}
+  } else {
+    const msg=buildMeasWAMsg(dummyMeas);
+    const el=document.getElementById('meas-template-preview');
+    if(el){el.textContent=msg;el.style.display='';}
+  }
+}
+
 async function testEmailJS(){
   const k  = gv('s-ejs-pubkey')  || settings.ejsPubKey  || '';
   const sv = gv('s-ejs-service') || settings.ejsService || '';
@@ -1858,22 +2276,36 @@ async function mailInv(inv){
   // Fallback: mailto
   window.open('mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
 }
+function getDefaultWATemplate(){
+  return '*{studio}*\n{tagline}\n\n*Invoice:* {invoice}\n*Customer:* {name} | 📞 {phone}\n*Date:* {date} | *Delivery:* {delivery}\n\n*Items:*\n{items}\n\n*Total: ₹{total}*\nAdvance Paid: ₹{advance}\n*Balance Due: ₹{balance}*\n\n{payment}\n\n_{footer}_';
+}
+function getDefaultMeasTemplate(){
+  return '*{studio}*\n📏 *Measurement Card*\n\n*Customer:* {name} | 📞 {phone}\n*S.No:* {sno} | *Date:* {date}\n*Trial:* {trial} | *Delivery:* {delivery}\n\n*Kurties/Blouse:*\n{kurtiMeas}\n\n*Pent/Salwar/Plazzo:*\n{pentMeas}\n\n_{footer}_';
+}
 function buildInvWAMsg(inv){
   const pay=[];
-  if(settings.upi)pay.push('UPI: '+settings.upi);
-  if(settings.gpay)pay.push('GPay/PhonePe: '+settings.gpay);
-  if(settings.accno)pay.push('Bank: '+(settings.bank||'')+' | A/C: '+settings.accno+(settings.ifsc?' | IFSC: '+settings.ifsc:''));
-  return '*'+(settings.name||'ACH Fashion Studio')+'*\n'+
-    (settings.tagline?'_'+settings.tagline+'_\n':'')+
-    '\U0001f4cd '+(settings.addr||'')+'\n\U0001f4de '+(settings.phone||'')+'\n\n'+
-    'Invoice: *'+inv.invNum+'*\nDate: '+(inv.invDate||'')+' | Delivery: '+(inv.ddate||'')+'\n\n'+
-    '*Customer:* '+(inv.custName||'')+(inv.custPhone?' | \U0001f4de '+inv.custPhone:'')+'\n\n'+
-    '*Items:*\n'+(inv.items||[]).map(it=>'• '+it.name+' \u00d7 '+it.qty+' = \u20b9'+fmt(it.amt)).join('\n')+
-    '\n\n*Total: \u20b9'+fmt(inv.grand||0)+'*'+
-    '\nAdvance Paid: \u20b9'+fmt(inv.advance||0)+
-    '\n*Balance Due: \u20b9'+fmt(inv.balance||0)+'*'+
-    (pay.length?'\n\n\U0001f4b3 *Payment Details:*\n'+pay.join('\n'):'')+
-    '\n\n_'+(settings.footer||'Thank you for choosing us!')+'_';
+  if(settings.upi)pay.push('💳 UPI: '+settings.upi);
+  if(settings.gpay)pay.push('📲 GPay/PhonePe: '+settings.gpay);
+  if(settings.accno)pay.push('🏦 Bank: '+(settings.bank||'')+' | A/C: '+settings.accno+(settings.ifsc?' | IFSC: '+settings.ifsc:''));
+  const itemsStr=(inv.items||[]).map(it=>'• '+it.name+' × '+it.qty+' = ₹'+fmt(it.amt)).join('\n');
+  const tmpl=settings.waMsgTemplate||getDefaultWATemplate();
+  return tmpl
+    .replace(/{studio}/g,     settings.name||'ACH Fashion Studio')
+    .replace(/{tagline}/g,    settings.tagline||'Exclusive Fashion')
+    .replace(/{invoice}/g,    inv.invNum||'')
+    .replace(/{name}/g,       inv.custName||'')
+    .replace(/{phone}/g,      inv.custPhone||'')
+    .replace(/{date}/g,       inv.invDate||'')
+    .replace(/{delivery}/g,   inv.ddate||'')
+    .replace(/{trial}/g,      inv.tdate||'')
+    .replace(/{items}/g,      itemsStr)
+    .replace(/{total}/g,      fmt(inv.grand||0))
+    .replace(/{advance}/g,    fmt(inv.advance||0))
+    .replace(/{balance}/g,    fmt(inv.balance||0))
+    .replace(/{payment}/g,    pay.length?'💳 *Payment Details:*\n'+pay.join('\n'):'')
+    .replace(/{footer}/g,     settings.footer||'Thank you for choosing us!')
+    .replace(/{addr}/g,       settings.addr||'')
+    .replace(/{studio_phone}/g, (settings.phone||'')+(settings.phone2?' / '+settings.phone2:''));
 }
 function buildInvEmailBody(inv){
   const pay=[];
@@ -1937,20 +2369,29 @@ function measCtx(m){
 }
 function buildMeasWAMsg(m){
   const kr=m.kurti||{},pt=m.pent||{};
-  const kl=[],pl=[];
   const kmap={length:'Length',chest:'Chest',underchest:'Under Chest',waist:'Waist',hip:'Hip',chaklength:'Chak Length',sleeves:'Sleeves',armhole:'Arm Hole',frontneck:'Front Neck',shoulder:'Shoulder',chestpoint:'Chest Point',chestspan:'Chest Span',waistpoint:'Waist Point',hiplength:'Hip Length',sleeveloosing:'Sleeve Loosing',daman:'Daman',backneck:'Back Neck'};
   const pmap={length:'Length',waist:'Waist',hip:'Hip',knee:'Knee',thigh:'Thigh',bottom:'Bottom',sheet:'Sheet'};
+  const kl=[],pl=[];
   Object.entries(kmap).forEach(([k,l])=>{if(kr[k])kl.push(l+': '+kr[k]);});
   Object.entries(pmap).forEach(([k,l])=>{if(pt[k])pl.push(l+': '+pt[k]);});
-  return '*'+(settings.name||'ACH Fashion Studio')+'*\n\U0001f4cf *Measurement Card*\n\n'+
-    '*Customer:* '+(m.custName||'')+(m.custPhone?' | \U0001f4de '+m.custPhone:'')+'\n'+
-    'S.No: '+m.sno+' | Date: '+(m.date||'')+'\n'+
-    (m.trial?'Trial: '+m.trial+'\n':'')+(m.delivery?'Delivery: '+m.delivery+'\n':'')+
-    (m.bagNo?'Bag No: '+m.bagNo+'\n':'')+(m.designer?'Designed By: '+m.designer+'\n':'')+
-    (kl.length?'\n*Kurties/Blouse:*\n'+kl.join('\n'):'')+
-    (pl.length?'\n\n*Pent/Salwar/Plazzo:*\n'+pl.join('\n'):'')+
-    (m.desc?'\n\nNotes: '+m.desc:'')+
-    '\n\n_'+(settings.footer||'Thank you for choosing us!')+'_';
+  const tmpl=settings.measMsgTemplate||getDefaultMeasTemplate();
+  return tmpl
+    .replace(/{studio}/g,     settings.name||'ACH Fashion Studio')
+    .replace(/{tagline}/g,    settings.tagline||'')
+    .replace(/{name}/g,       m.custName||'')
+    .replace(/{phone}/g,      m.custPhone||'')
+    .replace(/{sno}/g,        m.sno||'')
+    .replace(/{date}/g,       m.date||'')
+    .replace(/{trial}/g,      m.trial||'')
+    .replace(/{delivery}/g,   m.delivery||'')
+    .replace(/{bagno}/g,      m.bagNo||'')
+    .replace(/{designer}/g,   m.designer||'')
+    .replace(/{kurtiMeas}/g,  kl.length?kl.join('\n'):'—')
+    .replace(/{pentMeas}/g,   pl.length?pl.join('\n'):'—')
+    .replace(/{desc}/g,       m.desc||'')
+    .replace(/{footer}/g,     settings.footer||'Thank you for choosing us!')
+    .replace(/{addr}/g,       settings.addr||'')
+    .replace(/{studio_phone}/g,(settings.phone||'')+(settings.phone2?' / '+settings.phone2:''));
 }
 function buildMeasEmailBody(m){
   const kr=m.kurti||{},pt=m.pent||{};
@@ -2233,7 +2674,16 @@ function loadSet(){
   sv('s-accname',s.accname);sv('s-accno',s.accno);sv('s-ifsc',s.ifsc);
   sv('s-ejs-pubkey',s.ejsPubKey);sv('s-ejs-service',s.ejsService);sv('s-ejs-template',s.ejsTemplate);
   sv('s-default-cc',s.defaultCC||'91');
+  // Firebase fields
+  sv('s-fb-apikey',s.fbApiKey);sv('s-fb-authdomain',s.fbAuthDomain);sv('s-fb-projectid',s.fbProjectId);
+  sv('s-fb-storagebucket',s.fbStorageBucket);sv('s-fb-msgsenderid',s.fbMsgSenderId);sv('s-fb-appid',s.fbAppId);
+  // WA templates
+  const waT=document.getElementById('s-wa-template');
+  if(waT) waT.value=s.waMsgTemplate||getDefaultWATemplate();
+  const mT=document.getElementById('s-meas-template');
+  if(mT) mT.value=s.measMsgTemplate||getDefaultMeasTemplate();
   updateEJSStatus();
+  updateFirebaseStatus(s.fbApiKey&&s.fbProjectId?(_fbReady?'connected':'saved'):'none');
 }
 function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
 function gc(id){const e=document.getElementById(id);return e?e.checked:false}
@@ -2254,11 +2704,26 @@ async function saveSettings(){
     upi:gv('s-upi'),gpay:gv('s-gpay'),bank:gv('s-bank'),
     accname:gv('s-accname'),accno:gv('s-accno'),ifsc:gv('s-ifsc'),
     ejsPubKey:gv('s-ejs-pubkey'),ejsService:gv('s-ejs-service'),ejsTemplate:gv('s-ejs-template'),
-    defaultCC:(gv('s-default-cc')||'91').replace(/\D/g,'')
+    defaultCC:(gv('s-default-cc')||'91').replace(/\D/g,''),
+    fbApiKey:gv('s-fb-apikey'),fbAuthDomain:gv('s-fb-authdomain'),fbProjectId:gv('s-fb-projectid'),
+    fbStorageBucket:gv('s-fb-storagebucket'),fbMsgSenderId:gv('s-fb-msgsenderid'),fbAppId:gv('s-fb-appid'),
+    waMsgTemplate:document.getElementById('s-wa-template')?.value||settings.waMsgTemplate||'',
+    measMsgTemplate:document.getElementById('s-meas-template')?.value||settings.measMsgTemplate||''
   };
   await autosave('ach_set',settings);
   initEmailJS();
   updateEJSStatus();
+  // Re-init Firebase if credentials changed
+  if(settings.fbApiKey && settings.fbProjectId){
+    const ok = initFirebase({
+      apiKey:settings.fbApiKey, authDomain:settings.fbAuthDomain||settings.fbProjectId+'.firebaseapp.com',
+      projectId:settings.fbProjectId, storageBucket:settings.fbStorageBucket||settings.fbProjectId+'.appspot.com',
+      messagingSenderId:settings.fbMsgSenderId||'', appId:settings.fbAppId||''
+    });
+    updateFirebaseStatus(ok?'connected':'error');
+  } else {
+    updateFirebaseStatus('none');
+  }
   toast('\u2713 Settings saved','gold');
 }
 function syncColor(type){
