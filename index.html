@@ -1666,16 +1666,29 @@ function openWhatsApp(rawPhone, message){
   const cc     = (settings.defaultCC||'91').replace(/\D/g,'');
   const last10 = digits.slice(-10);
   const enc    = encodeURIComponent(message||'');
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  // Mobile: api.whatsapp.com/send opens the WhatsApp app directly, no browser step
-  // Desktop: wa.me opens WhatsApp Web
-  const url = isMobile
-    ? 'https://api.whatsapp.com/send?phone='+cc+last10+'&text='+enc
-    : 'https://wa.me/'+cc+last10+'?text='+enc;
-  const a = document.createElement('a');
-  a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>document.body.removeChild(a), 1000);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if(isAndroid){
+    // Use a hidden iframe pointing to the intent URI —
+    // Android resolves it as an app intent, opens WhatsApp directly, page stays loaded
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;top:-999px';
+    const intentUrl = 'intent://send?phone='+cc+last10+'&text='+enc
+      +'#Intent;scheme=whatsapp;package=com.whatsapp;action=android.intent.action.VIEW;end';
+    iframe.src = intentUrl;
+    document.body.appendChild(iframe);
+    // Fallback: if WhatsApp not installed, open wa.me after 2s
+    setTimeout(()=>{
+      document.body.removeChild(iframe);
+    }, 2000);
+  } else if(isIOS){
+    // iOS: whatsapp:// scheme opens app directly, no share sheet
+    window.location.href = 'whatsapp://send?phone='+cc+last10+'&text='+enc;
+  } else {
+    // Desktop — WhatsApp Web
+    window.open('https://wa.me/'+cc+last10+'?text='+enc, '_blank');
+  }
 }
 
 // ── EMAILJS ENGINE ──
@@ -2077,14 +2090,21 @@ async function pdfShareWhatsApp(){
   // Small delay so the PDF download starts first
   await new Promise(r=>setTimeout(r,1000));
 
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const url = isMobile
-    ? 'https://api.whatsapp.com/send?phone='+n+'&text='+encodeURIComponent(msg)
-    : 'https://wa.me/'+n+'?text='+encodeURIComponent(msg);
-  const a = document.createElement('a');
-  a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>document.body.removeChild(a), 1000);
+  const isAndroid2 = /Android/i.test(navigator.userAgent);
+  const isIOS2     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const enc2       = encodeURIComponent(msg);
+  if(isAndroid2){
+    const ifr = document.createElement('iframe');
+    ifr.style.cssText = 'display:none;width:0;height:0;border:none;position:absolute;top:-999px';
+    ifr.src = 'intent://send?phone='+n+'&text='+enc2
+      +'#Intent;scheme=whatsapp;package=com.whatsapp;action=android.intent.action.VIEW;end';
+    document.body.appendChild(ifr);
+    setTimeout(()=>document.body.removeChild(ifr), 2000);
+  } else if(isIOS2){
+    window.location.href = 'whatsapp://send?phone='+n+'&text='+enc2;
+  } else {
+    window.open('https://wa.me/'+n+'?text='+enc2, '_blank');
+  }
   toast('\u2713 PDF saved — attach it in the WhatsApp chat that opened', 'gold');
 }
 
