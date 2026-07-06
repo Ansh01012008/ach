@@ -1659,18 +1659,17 @@ function getObjPhone(obj){
   return (obj.custPhone||obj.phone||'').replace(/\D/g,'');
 }
 
-// Open WhatsApp — same method used by Vyapar, Zoho and reference app
-// Always: '91' + last 10 digits — this is what wa.me requires for Indian numbers
+// Central WhatsApp opener — <a> click, no Web Share API, no window.open
 function openWhatsApp(rawPhone, message){
   const digits = (rawPhone||'').replace(/\D/g,'');
   if(!digits){ toast('\u26a0 No phone number entered',''); return; }
-  // Take last 10 digits and always prepend 91 (India)
-  // If user's country code setting is different, use that instead
-  const cc = (settings.defaultCC||'91').replace(/\D/g,'');
+  const cc     = (settings.defaultCC||'91').replace(/\D/g,'');
   const last10 = digits.slice(-10);
-  const fullNum = cc + last10;
-  const url = 'https://wa.me/' + fullNum + '?text=' + encodeURIComponent(message||'');
-  window.open(url, '_blank');
+  const url    = 'https://wa.me/'+cc+last10+'?text='+encodeURIComponent(message||'');
+  const a = document.createElement('a');
+  a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>document.body.removeChild(a), 1000);
 }
 
 // ── EMAILJS ENGINE ──
@@ -1816,8 +1815,15 @@ function invCtx(inv){
     emailBody:buildInvEmailBody(inv)};
 }
 function sendWA(inv){
-  const ph = getObjPhone(inv) || (settings.waphone||'').replace(/\D/g,'');
-  openWhatsApp(ph, buildInvWAMsg(inv));
+  const digits= getObjPhone(inv) || (settings.waphone||'').replace(/\D/g,'');
+  const cc    = (settings.defaultCC||'91').replace(/\D/g,'');
+  const last10= digits.slice(-10);
+  if(!last10){ toast('\u26a0 No phone number on this invoice',''); return; }
+  const url   = 'https://wa.me/'+cc+last10+'?text='+encodeURIComponent(buildInvWAMsg(inv));
+  const a=document.createElement('a');
+  a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>document.body.removeChild(a),1000);
 }
 async function mailInv(inv){
   const subj = (settings.name||'ACH Fashion Studio')+' \u2014 Invoice '+inv.invNum;
@@ -1892,8 +1898,15 @@ async function doMeasEmail(){ const m=getMeasObj(); if(!m.custName){toast('\u26a
 function waMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)waMeas(m); }
 async function mailMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)await mailMeas(m); }
 function waMeas(m){
-  const ph = getObjPhone(m) || (settings.waphone||'').replace(/\D/g,'');
-  openWhatsApp(ph, buildMeasWAMsg(m));
+  const digits= getObjPhone(m) || (settings.waphone||'').replace(/\D/g,'');
+  const cc    = (settings.defaultCC||'91').replace(/\D/g,'');
+  const last10= digits.slice(-10);
+  if(!last10){ toast('\u26a0 No phone number',''); return; }
+  const url   = 'https://wa.me/'+cc+last10+'?text='+encodeURIComponent(buildMeasWAMsg(m));
+  const a=document.createElement('a');
+  a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>document.body.removeChild(a),1000);
 }
 async function mailMeas(m){
   const subj = (settings.name||'ACH Fashion Studio')+' \u2014 Measurement Card';
@@ -2059,40 +2072,31 @@ async function pdfDownload(){
 // Share via Web Share API (mobile native) or fallback
 async function pdfShareWhatsApp(){
   if(!_pdfCtx)return;
-  const ph=(_pdfCtx.custPhone||'').replace(/\D/g,'');
-  const n=settings.waphone||ph||'';
-  const msg=_pdfCtx.waMsg||'';
+  const rawPh = (_pdfCtx.custPhone||'').replace(/\D/g,'');
+  const cc    = (settings.defaultCC||'91').replace(/\D/g,'');
+  const last10= rawPh.slice(-10);
+  const n     = cc + last10;
+  const msg   = _pdfCtx.waMsg||'';
 
-  // Try Web Share API with file (Android Chrome, iOS Safari)
-  if(navigator.canShare){
-    try{
-      showGenOverlay(true,'Preparing PDF…','Getting your document ready to share…');
-      const blob=await generatePDFBlob();
-      showGenOverlay(false);
-      if(blob){
-        const file=new File([blob],_lastPdfFilename,{type:'application/pdf'});
-        if(navigator.canShare({files:[file]})){
-          await navigator.share({
-            files:[file],
-            title:document.getElementById('pdf-title').textContent,
-            text:msg.substring(0,300)+'…'
-          });
-          return;
-        }
-      }
-    }catch(e){
-      showGenOverlay(false);
-      if(e.name==='AbortError') return; // user cancelled
-      // fall through to WA link
-    }
-  }
+  if(!last10){ toast('\u26a0 No phone number on this invoice',''); return; }
 
-  // Download PDF first, then open WhatsApp directly
+  // Step 1: Save PDF to device
   await pdfDownload();
-  setTimeout(()=>{
-    openWhatsApp(n, msg);
-    toast('\u2713 PDF saved — attach it in WhatsApp','gold');
-  },900);
+
+  // Step 2: Open WhatsApp with number + message pre-filled
+  // Small delay so the PDF download starts first
+  await new Promise(r=>setTimeout(r,1000));
+
+  const url = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+  const a = document.createElement('a');
+  a.href = url;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>document.body.removeChild(a), 1000);
+
+  toast('\u2713 PDF saved to Downloads — attach it in the WhatsApp chat that just opened', 'gold');
 }
 
 async function pdfShareEmail(){
@@ -2101,41 +2105,22 @@ async function pdfShareEmail(){
   const subj = _pdfCtx.emailSubject||'';
   const body = _pdfCtx.emailBody||'';
 
-  // ── PATH 1: EmailJS (real attached PDF) ──
+  // ── PATH 1: EmailJS — sends real email with PDF attached ──
   if(_ejsReady && settings.ejsService && settings.ejsTemplate){
     const blob = await generatePDFBlob();
     const ok   = await sendEmailWithPDF(em, _pdfCtx.custName||'Customer', subj, body, blob, _lastPdfFilename);
     if(ok) return;
-    // If EmailJS fails, fall through to next option
   }
 
-  // ── PATH 2: Web Share API with file (Android/iOS native) ──
-  if(navigator.canShare){
-    try{
-      showGenOverlay(true,'Preparing PDF…','Getting document ready to share…');
-      const blob=await generatePDFBlob();
-      showGenOverlay(false);
-      if(blob){
-        const file=new File([blob],_lastPdfFilename,{type:'application/pdf'});
-        if(navigator.canShare({files:[file]})){
-          await navigator.share({files:[file],title:subj,text:body.substring(0,500)});
-          return;
-        }
-      }
-    }catch(e){
-      showGenOverlay(false);
-      if(e.name==='AbortError') return;
-    }
-  }
-
-  // ── PATH 3: Download PDF + mailto fallback ──
+  // ── PATH 2: Download PDF first, then open mail client ──
   await pdfDownload();
-  setTimeout(()=>{
-    window.open('mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
-    toast(window.innerWidth<=768
-      ? '\u2713 PDF saved — attach it in your Email app'
-      : '\u2713 PDF saved — attach it to the email that just opened','gold');
-  },800);
+  await new Promise(r=>setTimeout(r,800));
+  const a = document.createElement('a');
+  a.href = 'mailto:'+em+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+  a.target = '_blank';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>document.body.removeChild(a),1000);
+  toast('\u2713 PDF saved — attach it to the email','gold');
 }
 
 // Legacy pdfWhatsApp / pdfEmail (direct, no PDF attach) kept for fallback
