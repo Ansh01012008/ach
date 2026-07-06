@@ -1659,13 +1659,19 @@ function getObjPhone(obj){
   return (obj.custPhone||obj.phone||'').replace(/\D/g,'');
 }
 
-// Central WhatsApp opener — <a> click, no Web Share API, no window.open
+// Central WhatsApp opener
 function openWhatsApp(rawPhone, message){
   const digits = (rawPhone||'').replace(/\D/g,'');
   if(!digits){ toast('\u26a0 No phone number entered',''); return; }
   const cc     = (settings.defaultCC||'91').replace(/\D/g,'');
   const last10 = digits.slice(-10);
-  const url    = 'https://wa.me/'+cc+last10+'?text='+encodeURIComponent(message||'');
+  const enc    = encodeURIComponent(message||'');
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  // Mobile: api.whatsapp.com/send opens the WhatsApp app directly, no browser step
+  // Desktop: wa.me opens WhatsApp Web
+  const url = isMobile
+    ? 'https://api.whatsapp.com/send?phone='+cc+last10+'&text='+enc
+    : 'https://wa.me/'+cc+last10+'?text='+enc;
   const a = document.createElement('a');
   a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
   document.body.appendChild(a); a.click();
@@ -1815,15 +1821,7 @@ function invCtx(inv){
     emailBody:buildInvEmailBody(inv)};
 }
 function sendWA(inv){
-  const digits= getObjPhone(inv) || (settings.waphone||'').replace(/\D/g,'');
-  const cc    = (settings.defaultCC||'91').replace(/\D/g,'');
-  const last10= digits.slice(-10);
-  if(!last10){ toast('\u26a0 No phone number on this invoice',''); return; }
-  const url   = 'https://wa.me/'+cc+last10+'?text='+encodeURIComponent(buildInvWAMsg(inv));
-  const a=document.createElement('a');
-  a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>document.body.removeChild(a),1000);
+  openWhatsApp(getObjPhone(inv)||(settings.waphone||''), buildInvWAMsg(inv));
 }
 async function mailInv(inv){
   const subj = (settings.name||'ACH Fashion Studio')+' \u2014 Invoice '+inv.invNum;
@@ -1898,15 +1896,7 @@ async function doMeasEmail(){ const m=getMeasObj(); if(!m.custName){toast('\u26a
 function waMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)waMeas(m); }
 async function mailMeasById(id){ const m=measurements.find(x=>x.id===id); if(m)await mailMeas(m); }
 function waMeas(m){
-  const digits= getObjPhone(m) || (settings.waphone||'').replace(/\D/g,'');
-  const cc    = (settings.defaultCC||'91').replace(/\D/g,'');
-  const last10= digits.slice(-10);
-  if(!last10){ toast('\u26a0 No phone number',''); return; }
-  const url   = 'https://wa.me/'+cc+last10+'?text='+encodeURIComponent(buildMeasWAMsg(m));
-  const a=document.createElement('a');
-  a.href=url; a.target='_blank'; a.rel='noopener noreferrer';
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>document.body.removeChild(a),1000);
+  openWhatsApp(getObjPhone(m)||(settings.waphone||''), buildMeasWAMsg(m));
 }
 async function mailMeas(m){
   const subj = (settings.name||'ACH Fashion Studio')+' \u2014 Measurement Card';
@@ -2087,16 +2077,15 @@ async function pdfShareWhatsApp(){
   // Small delay so the PDF download starts first
   await new Promise(r=>setTimeout(r,1000));
 
-  const url = 'https://wa.me/' + n + '?text=' + encodeURIComponent(msg);
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const url = isMobile
+    ? 'https://api.whatsapp.com/send?phone='+n+'&text='+encodeURIComponent(msg)
+    : 'https://wa.me/'+n+'?text='+encodeURIComponent(msg);
   const a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener noreferrer';
-  document.body.appendChild(a);
-  a.click();
+  a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  document.body.appendChild(a); a.click();
   setTimeout(()=>document.body.removeChild(a), 1000);
-
-  toast('\u2713 PDF saved to Downloads — attach it in the WhatsApp chat that just opened', 'gold');
+  toast('\u2713 PDF saved — attach it in the WhatsApp chat that opened', 'gold');
 }
 
 async function pdfShareEmail(){
