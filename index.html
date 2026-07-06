@@ -470,6 +470,17 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
           </div>
         </div>
 
+        <div class="scard" style="margin-top:16px">
+          <div class="scard-t">📱 WhatsApp Default Country Code</div>
+          <div class="scard-d">Used to format phone numbers for WhatsApp. Default is 91 for India. Enter digits only — no + sign.</div>
+          <div style="margin-top:12px;max-width:200px">
+            <div class="fg"><label>Country Code (digits only)</label>
+              <input id="s-default-cc" placeholder="91" value="91" style="max-width:120px" inputmode="numeric">
+            </div>
+            <div style="font-size:11px;color:var(--ink-muted);margin-top:5px">India = 91 &nbsp;|&nbsp; USA = 1 &nbsp;|&nbsp; UK = 44 &nbsp;|&nbsp; UAE = 971</div>
+          </div>
+        </div>
+
         <!-- EmailJS Setup Card -->
         <div class="scard" style="margin-top:16px;border-color:#4285F4">
           <div class="scard-t" style="color:#4285F4">✉ Auto Email with PDF — EmailJS Setup</div>
@@ -1648,27 +1659,18 @@ function getObjPhone(obj){
   return (obj.custPhone||obj.phone||'').replace(/\D/g,'');
 }
 
-// Open WhatsApp directly — no share sheet, no contact picker
-function openWhatsApp(fullPhone, message){
-  if(!fullPhone){ toast('\u26a0 No phone number entered',''); return; }
-  const enc = encodeURIComponent(message||'');
-  const isAndroid = /Android/i.test(navigator.userAgent);
-  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if(isAndroid){
-    // Android Intent URL — bypasses "open with" dialog AND goes directly to chat
-    // package=com.whatsapp ensures WhatsApp is chosen, not Business
-    const intent = 'intent://send?phone=' + fullPhone
-      + '&text=' + enc
-      + '#Intent;scheme=whatsapp;package=com.whatsapp;end';
-    window.location.href = intent;
-  } else if(isIOS){
-    // iOS — whatsapp:// scheme goes directly to chat with number
-    window.location.href = 'whatsapp://send?phone=' + fullPhone + '&text=' + enc;
-  } else {
-    // Desktop — WhatsApp Web
-    window.open('https://wa.me/' + fullPhone + '?text=' + enc, '_blank');
-  }
+// Open WhatsApp — same method used by Vyapar, Zoho and reference app
+// Always: '91' + last 10 digits — this is what wa.me requires for Indian numbers
+function openWhatsApp(rawPhone, message){
+  const digits = (rawPhone||'').replace(/\D/g,'');
+  if(!digits){ toast('\u26a0 No phone number entered',''); return; }
+  // Take last 10 digits and always prepend 91 (India)
+  // If user's country code setting is different, use that instead
+  const cc = (settings.defaultCC||'91').replace(/\D/g,'');
+  const last10 = digits.slice(-10);
+  const fullNum = cc + last10;
+  const url = 'https://wa.me/' + fullNum + '?text=' + encodeURIComponent(message||'');
+  window.open(url, '_blank');
 }
 
 // ── EMAILJS ENGINE ──
@@ -2236,6 +2238,7 @@ function loadSet(){
   sv('s-upi',s.upi);sv('s-gpay',s.gpay);sv('s-bank',s.bank);
   sv('s-accname',s.accname);sv('s-accno',s.accno);sv('s-ifsc',s.ifsc);
   sv('s-ejs-pubkey',s.ejsPubKey);sv('s-ejs-service',s.ejsService);sv('s-ejs-template',s.ejsTemplate);
+  sv('s-default-cc',s.defaultCC||'91');
   updateEJSStatus();
 }
 function gv(id){const e=document.getElementById(id);return e?e.value.trim():''}
@@ -2256,7 +2259,8 @@ async function saveSettings(){
     cardaddr:gv('s-cardaddr'),cardstamp:gv('s-cardstamp')||'EXCLUSIVE FASHION',
     upi:gv('s-upi'),gpay:gv('s-gpay'),bank:gv('s-bank'),
     accname:gv('s-accname'),accno:gv('s-accno'),ifsc:gv('s-ifsc'),
-    ejsPubKey:gv('s-ejs-pubkey'),ejsService:gv('s-ejs-service'),ejsTemplate:gv('s-ejs-template')
+    ejsPubKey:gv('s-ejs-pubkey'),ejsService:gv('s-ejs-service'),ejsTemplate:gv('s-ejs-template'),
+    defaultCC:(gv('s-default-cc')||'91').replace(/\D/g,'')
   };
   await autosave('ach_set',settings);
   initEmailJS();
