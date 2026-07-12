@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,6 +89,13 @@ tbody td{padding:11px 13px;font-size:13px;color:var(--ink)}
 .mhd{background:var(--ink);padding:18px 26px;display:flex;align-items:center;justify-content:space-between}
 .mt{font-family:'DM Serif Display',serif;font-size:19px;color:#fff}
 .msub{font-size:11px;color:var(--gold);margin-top:2px}
+.save-status{font-size:11px;font-weight:600;letter-spacing:.03em;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:14px;transition:color .2s}
+.save-status .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.save-status.saving{color:var(--gold-light)}
+.save-status.saving .dot{animation:pulseDot 1s ease-in-out infinite}
+.save-status.saved{color:#8fd6a8}
+.save-status.error{color:#e08a7d}
+@keyframes pulseDot{0%,100%{opacity:.35}50%{opacity:1}}
 .mx{background:rgba(255,255,255,.12);border:none;color:#fff;width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center}
 .mx:hover{background:rgba(255,255,255,.22)}
 .mb{padding:24px}
@@ -379,6 +387,7 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:16px 0}
         <button class="stab" id="stab-data" onclick="swSet('data')">🗃 Data & Backup</button>
         <button class="stab" id="stab-whatsapp" onclick="swSet('whatsapp')">📱 WA Templates</button>
         <button class="stab" id="stab-firebase" onclick="swSet('firebase')">🔥 Firebase</button>
+        <button class="stab" id="stab-app" onclick="swSet('app')">📲 Install App</button>
       </div>
 
       <!-- STUDIO INFO -->
@@ -760,6 +769,76 @@ service cloud.firestore {
         </div>
       </div>
 
+      <!-- INSTALL APP PANEL -->
+      <div class="spanel" id="sp-app">
+        <div class="scard" style="border-color:#667eea">
+          <div class="scard-t" style="color:#667eea">📲 Install ACH Studio as an App</div>
+          <div class="scard-d">Install this billing app on your phone or desktop — it works like a native app, opens instantly, works offline, and sits on your home screen.</div>
+
+          <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn bshare" onclick="installPWA()" style="font-size:14px;padding:12px 22px">
+              📲 Install on This Device
+            </button>
+            <button class="btn bs" onclick="showInstallInstructions()" style="font-size:14px;padding:12px 22px">
+              ❓ How to Install
+            </button>
+          </div>
+
+          <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <!-- Android -->
+            <div style="background:#e8f5e9;border-radius:10px;padding:16px;border:1px solid #c8e6c9">
+              <div style="font-size:14px;font-weight:700;color:#2e7d32;margin-bottom:10px">🤖 Android (Chrome)</div>
+              <ol style="font-size:12.5px;color:#1b5e20;line-height:2.2;padding-left:16px">
+                <li>Open this page in <strong>Chrome</strong></li>
+                <li>Tap ⋮ <strong>(three dots)</strong> top right</li>
+                <li>Tap <strong>"Add to Home screen"</strong><br>or <strong>"Install app"</strong></li>
+                <li>Tap <strong>Install</strong> → Done!</li>
+              </ol>
+              <div style="margin-top:10px;font-size:11px;color:#388e3c">✓ App icon appears on home screen<br>✓ Opens fullscreen like native app<br>✓ Works offline</div>
+            </div>
+            <!-- iOS -->
+            <div style="background:#e3f2fd;border-radius:10px;padding:16px;border:1px solid #bbdefb">
+              <div style="font-size:14px;font-weight:700;color:#1565c0;margin-bottom:10px">🍎 iPhone / iPad (Safari)</div>
+              <ol style="font-size:12.5px;color:#0d47a1;line-height:2.2;padding-left:16px">
+                <li>Open this page in <strong>Safari</strong> (not Chrome)</li>
+                <li>Tap the <strong>Share button</strong> <span style="font-size:15px">⎙</span> at the bottom</li>
+                <li>Scroll down → tap <strong>"Add to Home Screen"</strong></li>
+                <li>Tap <strong>Add</strong> → Done!</li>
+              </ol>
+              <div style="margin-top:10px;font-size:11px;color:#1976d2">✓ App icon on home screen<br>✓ Opens fullscreen<br>✓ Works offline</div>
+            </div>
+          </div>
+
+          <!-- Desktop -->
+          <div style="margin-top:14px;background:#faf7f2;border-radius:10px;padding:16px;border:1px solid var(--border)">
+            <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px">💻 Desktop (Chrome / Edge)</div>
+            <div style="font-size:12.5px;color:var(--ink-soft);line-height:1.8">
+              Look for the <strong>install icon ⊕</strong> in the address bar (right side) → Click it → Click <strong>Install</strong>.<br>
+              Or: Click <strong>⋮ menu → "Install ACH Fashion Studio"</strong>
+            </div>
+          </div>
+
+          <!-- Benefits -->
+          <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center">
+            <div style="background:var(--gold-pale);border-radius:8px;padding:12px;border:1px solid var(--gold-light)">
+              <div style="font-size:22px;margin-bottom:4px">⚡</div>
+              <div style="font-size:12px;font-weight:600;color:var(--ink)">Instant Launch</div>
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:2px">Opens in under 1 second</div>
+            </div>
+            <div style="background:var(--gold-pale);border-radius:8px;padding:12px;border:1px solid var(--gold-light)">
+              <div style="font-size:22px;margin-bottom:4px">📶</div>
+              <div style="font-size:12px;font-weight:600;color:var(--ink)">Works Offline</div>
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:2px">No internet needed</div>
+            </div>
+            <div style="background:var(--gold-pale);border-radius:8px;padding:12px;border:1px solid var(--gold-light)">
+              <div style="font-size:22px;margin-bottom:4px">🔒</div>
+              <div style="font-size:12px;font-weight:600;color:var(--ink)">Your Data Only</div>
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:2px">Stored on your device</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div style="margin-top:20px;display:flex;gap:10px">
         <button class="btn bp" onclick="saveSettings()">💾 Save All Settings</button>
         <button class="btn bs" onclick="loadSet()">↺ Reset to Saved</button>
@@ -774,7 +853,10 @@ service cloud.firestore {
   <div class="modal">
     <div class="mhd">
       <div><div class="mt" id="m-title">New Invoice</div><div class="msub" id="m-num">ACH-0001</div></div>
-      <button class="mx" onclick="closeModal('inv-modal')">✕</button>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="save-status" id="inv-save-status"></span>
+        <button class="mx" onclick="closeModal('inv-modal')">✕</button>
+      </div>
     </div>
     <div class="mb">
       <div class="tabs">
@@ -840,7 +922,8 @@ service cloud.firestore {
       <button class="btn bs" onclick="saveInvoice('draft')">Save Draft</button>
       <button class="btn bw" onclick="doWhatsApp()">📱 WhatsApp</button>
       <button class="btn bem" onclick="doEmail()">✉ Email</button>
-      <button class="btn bs" onclick="doPDF()">👁 Preview & Download</button>
+      <button class="btn bshare" onclick="doShare()">↑ Share</button>
+      <button class="btn bs" onclick="doPDF()">👁 Preview</button>
       <button class="btn bp" onclick="saveInvoice('save')">Save Invoice</button>
     </div>
   </div>
@@ -851,7 +934,10 @@ service cloud.firestore {
   <div class="modal" style="max-width:800px">
     <div class="mhd">
       <div><div class="mt" id="mm-title">New Measurement</div><div class="msub" id="mm-sub">Customer Measurement Card</div></div>
-      <button class="mx" onclick="closeModal('meas-modal')">✕</button>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span class="save-status" id="meas-save-status"></span>
+        <button class="mx" onclick="closeModal('meas-modal')">✕</button>
+      </div>
     </div>
     <div class="mb">
       <!-- Customer Info -->
@@ -923,7 +1009,8 @@ service cloud.firestore {
       <button class="btn bg" onclick="closeModal('meas-modal')">Cancel</button>
       <button class="btn bw" onclick="doMeasWhatsApp()">📱 WhatsApp</button>
       <button class="btn bem" onclick="doMeasEmail()">✉ Email</button>
-      <button class="btn bs" onclick="printMeasurement()">👁 Preview & Download</button>
+      <button class="btn bshare" onclick="doMeasShare()">↑ Share</button>
+      <button class="btn bs" onclick="printMeasurement()">👁 Preview</button>
       <button class="btn bp" onclick="saveMeasurement()">Save Measurement</button>
     </div>
   </div>
@@ -972,6 +1059,7 @@ service cloud.firestore {
       </div>
     </div>
     <div class="pdf-actions">
+      <button class="btn bshare bsm" onclick="pdfNativeShare()">↑ Share PDF</button>
       <button class="btn bw bsm" id="pdf-wa-btn" onclick="pdfShareWhatsApp()">📱 WhatsApp</button>
       <button class="btn bem bsm" id="pdf-mail-btn" onclick="pdfShareEmail()">✉ Email</button>
       <button class="btn bs bsm" onclick="pdfDownload()">⬇ Save PDF</button>
@@ -997,6 +1085,17 @@ service cloud.firestore {
   <div class="spin" style="width:52px;height:52px;border-width:5px"></div>
   <div class="gen-ov-txt" id="gen-ov-txt">Generating PDF…</div>
   <div class="gen-ov-sub" id="gen-ov-sub">Please wait a moment</div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwa-banner">
+  <div class="pwa-banner-ico">A</div>
+  <div class="pwa-banner-txt">
+    <div class="pwa-banner-title">Install ACH Studio</div>
+    <div class="pwa-banner-sub">Add to home screen for quick access</div>
+  </div>
+  <button class="pwa-banner-btn" onclick="installPWA()">Install</button>
+  <button class="pwa-dismiss" onclick="dismissPWA()">✕</button>
 </div>
 
 <!-- MOBILE BOTTOM NAV -->
@@ -1043,27 +1142,35 @@ function initFirebase(cfg){
   }
 }
 
-// Smart storage: Firebase if ready, else window.storage fallback
+// Smart storage: Firebase (cloud, cross-device) + localStorage (instant, offline) — always both
 const ST={
   async get(k){
+    // localStorage is instant and always available — read it first as baseline
+    let local = null;
+    try{ const raw = localStorage.getItem('ach:'+k); local = raw ? JSON.parse(raw) : null; }catch(e){}
     if(_fbReady && _fbDb){
       try{
         const doc = await _fbDb.collection('ach-billing').doc(k).get();
-        if(doc.exists) return JSON.parse(doc.data().value);
-        return null;
+        if(doc.exists){
+          const val = JSON.parse(doc.data().value);
+          // keep local mirror in sync
+          try{ localStorage.setItem('ach:'+k, JSON.stringify(val)); }catch(e){}
+          return val;
+        }
       }catch(e){ console.warn('FB get failed, using local:', e); }
     }
-    try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null}catch{return null}
+    return local;
   },
   async set(k,v){
     const str = JSON.stringify(v);
-    // Write to both Firebase AND local storage for resilience
+    // Write to localStorage immediately (never fails, works offline)
+    try{ localStorage.setItem('ach:'+k, str); }catch(e){ console.error('localStorage set failed:', e); }
+    // Also push to Firebase if connected, for cross-device sync
     if(_fbReady && _fbDb){
       try{
         await _fbDb.collection('ach-billing').doc(k).set({value:str, updatedAt:Date.now()});
-      }catch(e){ console.warn('FB set failed:', e); }
+      }catch(e){ console.warn('FB set failed (saved locally):', e); }
     }
-    try{await window.storage.set(k,str)}catch(e){console.error(e)}
   }
 };
 let invoices=[],customers=[],products=[],measurements=[],settings={},editId=null,editMId=null,rowCnt=0;
@@ -1071,7 +1178,7 @@ let invoices=[],customers=[],products=[],measurements=[],settings={},editId=null
 async function init(){
   // Load settings first (needed for Firebase config)
   settings = await (async()=>{
-    try{const r=await window.storage.get('ach_set');return r?JSON.parse(r.value):null}catch{return null}
+    try{const raw=localStorage.getItem('ach:ach_set');return raw?JSON.parse(raw):null}catch{return null}
   })() || {};
 
   // ── HARDCODED FIREBASE CONFIG ──
@@ -1195,6 +1302,7 @@ function updateDLs(){
 
 // ── INVOICE MODAL ──
 function openNewInvoice(){
+  clearTimeout(_invSaveTimer); showSaveIndicator('inv-modal','idle');
   editId=null; rowCnt=0;
   const num=genNum();
   document.getElementById('m-title').textContent='New Invoice';
@@ -1216,6 +1324,7 @@ function openNewInvoice(){
 }
 function openEdit(id){
   const inv=invoices.find(i=>i.id===id);if(!inv)return;
+  clearTimeout(_invSaveTimer); showSaveIndicator('inv-modal','idle');
   editId=id; rowCnt=0;
   document.getElementById('m-title').textContent='Edit Invoice';
   document.getElementById('m-num').textContent=inv.invNum;
@@ -1482,6 +1591,7 @@ function buildInvHTML(inv){
 
 // ── MEASUREMENT MODAL ──
 function openMeasureNew(){
+  clearTimeout(_measSaveTimer); showSaveIndicator('meas-modal','idle');
   editMId=null;
   document.getElementById('mm-title').textContent='New Measurement';
   document.getElementById('mm-sub').textContent='Customer Measurement Card';
@@ -1497,6 +1607,7 @@ function openMeasureNew(){
 }
 function openMeasEdit(id){
   const m=measurements.find(x=>x.id===id);if(!m)return;
+  clearTimeout(_measSaveTimer); showSaveIndicator('meas-modal','idle');
   editMId=id;
   document.getElementById('mm-title').textContent='Edit Measurement';
   document.getElementById('mm-sub').textContent=m.custName||'';
@@ -1884,8 +1995,101 @@ async function delProd(id){
 
 // ── AUTO-SAVE HELPER ──
 async function autosave(key, data){
-  try{ await window.storage.set(key, JSON.stringify(data)); }
+  try{ await ST.set(key, data); }
   catch(e){ console.error('Autosave failed:', key, e); }
+}
+
+// ── LIVE AUTOSAVE (no button press needed) ──
+// As soon as the user types anything into the invoice or measurement form,
+// changes are silently saved (to Firebase if connected, and always to localStorage)
+// after a short pause in typing. A small indicator in the modal header shows status.
+function showSaveIndicator(modalId, state){
+  const elId = modalId==='inv-modal' ? 'inv-save-status' : 'meas-save-status';
+  const el = document.getElementById(elId);
+  if(!el) return;
+  el.classList.remove('saving','saved','error');
+  if(state==='idle'){ el.innerHTML=''; return; }
+  if(state==='saving'){ el.classList.add('saving'); el.innerHTML='<span class="dot"></span>Saving…'; return; }
+  if(state==='saved'){ el.classList.add('saved'); el.innerHTML='<span class="dot"></span>Saved'; return; }
+  if(state==='error'){ el.classList.add('error'); el.innerHTML='<span class="dot"></span>Save failed'; return; }
+}
+
+let _invSaveTimer=null, _measSaveTimer=null;
+
+function scheduleInvAutosave(){
+  showSaveIndicator('inv-modal','saving');
+  clearTimeout(_invSaveTimer);
+  _invSaveTimer=setTimeout(saveInvoiceSilent, 900);
+}
+async function saveInvoiceSilent(){
+  try{
+    const cnameEl=document.getElementById('f-cname');
+    if(!cnameEl || !cnameEl.value.trim()){ showSaveIndicator('inv-modal','idle'); return; }
+    const t=calcTotals();
+    if(!editId) editId=uid();
+    const existing=invoices.find(i=>i.id===editId);
+    const inv={
+      id:editId,
+      invNum:document.getElementById('f-inum').value,
+      invDate:document.getElementById('f-idate').value,
+      ddate:document.getElementById('f-ddate').value,
+      tdate:document.getElementById('f-tdate').value,
+      status:document.getElementById('f-status').value||'draft',
+      bagNo:document.getElementById('f-bagno').value.trim(),
+      designer:document.getElementById('f-designer').value.trim(),
+      preparedby:document.getElementById('f-preparedby').value.trim(),
+      custName:cnameEl.value.trim(),
+      custPhone:getInvPhone(),
+      custAddr:document.getElementById('f-caddr').value.trim(),
+      advance:t.adv, grand:t.grand, balance:t.bal,
+      notes:document.getElementById('f-notes').value.trim(),
+      items:t.items,
+      createdAt:existing?existing.createdAt:Date.now(),
+      updatedAt:Date.now()
+    };
+    const i=invoices.findIndex(x=>x.id===inv.id);
+    if(i>=0) invoices[i]=inv; else invoices.push(inv);
+    await autosave('ach_inv',invoices);
+    if(!customers.find(c=>c.name.toLowerCase()===inv.custName.toLowerCase())){
+      customers.push({id:uid(),name:inv.custName,phone:inv.custPhone,addr:inv.custAddr});
+      await autosave('ach_cust',customers); renderCust(); updateDLs();
+    }
+    renderList(); updateStats(); updateBadges();
+    showSaveIndicator('inv-modal','saved');
+  }catch(e){ console.error('Live autosave (invoice) failed:', e); showSaveIndicator('inv-modal','error'); }
+}
+
+function scheduleMeasAutosave(){
+  showSaveIndicator('meas-modal','saving');
+  clearTimeout(_measSaveTimer);
+  _measSaveTimer=setTimeout(saveMeasurementSilent, 900);
+}
+async function saveMeasurementSilent(){
+  try{
+    const nameEl=document.getElementById('mm-name');
+    if(!nameEl || !nameEl.value.trim()){ showSaveIndicator('meas-modal','idle'); return; }
+    const m=getMeasObj();
+    editMId=m.id;
+    const i=measurements.findIndex(x=>x.id===m.id);
+    if(i>=0) measurements[i]=m; else measurements.push(m);
+    await autosave('ach_meas',measurements);
+    if(!customers.find(c=>c.name.toLowerCase()===m.custName.toLowerCase())){
+      customers.push({id:uid(),name:m.custName,phone:m.custPhone,addr:''});
+      await autosave('ach_cust',customers); renderCust(); updateDLs();
+    }
+    renderMeas(); updateBadges();
+    showSaveIndicator('meas-modal','saved');
+  }catch(e){ console.error('Live autosave (measurement) failed:', e); showSaveIndicator('meas-modal','error'); }
+}
+
+document.addEventListener('input', handleLiveAutosaveInput, true);
+document.addEventListener('change', handleLiveAutosaveInput, true);
+function handleLiveAutosaveInput(e){
+  const t=e.target;
+  if(!t || !t.closest) return;
+  if(!(t.matches('input,select,textarea'))) return;
+  if(t.closest('#inv-modal')) scheduleInvAutosave();
+  else if(t.closest('#meas-modal')) scheduleMeasAutosave();
 }
 
 // ── PHONE HELPERS ──
@@ -2875,6 +3079,175 @@ function toast(msg,type){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className='toast show'+(type?' '+type:'');
   clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ── PWA INSTALL ──
+let _deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  // Show banner after 3 seconds if not dismissed before
+  const dismissed = localStorage.getItem('pwa-dismissed');
+  if(!dismissed){
+    setTimeout(() => {
+      document.getElementById('pwa-banner')?.classList.add('show');
+    }, 3000);
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-banner')?.classList.remove('show');
+  _deferredPrompt = null;
+  toast('✓ ACH Studio installed on your device!', 'gold');
+});
+
+async function installPWA(){
+  if(_deferredPrompt){
+    _deferredPrompt.prompt();
+    const {outcome} = await _deferredPrompt.userChoice;
+    if(outcome === 'accepted'){
+      toast('✓ Installing ACH Studio…', 'gold');
+    }
+    _deferredPrompt = null;
+    document.getElementById('pwa-banner')?.classList.remove('show');
+  } else {
+    // Fallback instructions
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if(isIOS){
+      toast('Tap the Share button → "Add to Home Screen"', 'gold');
+    } else {
+      toast('Tap ⋮ menu → "Add to Home screen" or "Install app"', 'gold');
+    }
+  }
+}
+
+function dismissPWA(){
+  document.getElementById('pwa-banner')?.classList.remove('show');
+  localStorage.setItem('pwa-dismissed', '1');
+}
+
+// ── SERVICE WORKER ──
+if('serviceWorker' in navigator){
+  const swCode = `
+const CACHE = 'ach-studio-v1';
+const ASSETS = ['/'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  if(e.request.method !== 'GET') return;
+  e.respondWith(
+    fetch(e.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(e.request).then(r => r || new Response('Offline', {status: 503})))
+  );
+});`;
+
+  const blob = new Blob([swCode], {type: 'application/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl, {scope: '/'})
+    .then(reg => console.log('SW registered:', reg.scope))
+    .catch(err => console.warn('SW registration failed (normal on localhost):', err));
+}
+
+// ── SHARE FUNCTIONS ──
+
+// Share button from invoice form
+async function doShare(){
+  const inv = buildObj();
+  if(!inv.custName){ toast('⚠ Save invoice first before sharing',''); return; }
+  const html = buildInvHTML(inv);
+  // Load into iframe for rendering
+  const iframe = document.getElementById('pdf-iframe');
+  const safe = html.replace(/<script>window\.onload[^<]*<\/script>/g,'');
+  const d = iframe.contentDocument || iframe.contentWindow.document;
+  d.open(); d.write(safe); d.close();
+  _pdfHTML = html;
+  _lastPdfFilename = 'Invoice_' + (inv.invNum||'ACH').replace(/[^a-z0-9]/gi,'_') + '.pdf';
+  _lastPdfBlob = null;
+  await new Promise(r => setTimeout(r, 500));
+  await pdfNativeShare();
+}
+
+// Share button from measurement form
+async function doMeasShare(){
+  const m = getMeasObj();
+  if(!m.custName){ toast('⚠ Enter customer name first',''); return; }
+  const html = buildMeasHTML(m);
+  const iframe = document.getElementById('pdf-iframe');
+  const safe = html.replace(/<script>window\.onload[^<]*<\/script>/g,'');
+  const d = iframe.contentDocument || iframe.contentWindow.document;
+  d.open(); d.write(safe); d.close();
+  _pdfHTML = html;
+  _lastPdfFilename = 'Measurement_' + (m.custName||'Card').replace(/\s+/g,'_') + '.pdf';
+  _lastPdfBlob = null;
+  _pdfCtx = measCtx(m);
+  await new Promise(r => setTimeout(r, 500));
+  await pdfNativeShare();
+}
+
+// Native share — generates real PDF and shares via OS share sheet with file attached
+async function pdfNativeShare(){
+  if(!_pdfHTML){ toast('⚠ No document to share',''); return; }
+
+  // Try Web Share API with file (works on Android Chrome 86+, iOS Safari 15+)
+  if(navigator.canShare){
+    try{
+      showGenOverlay(true, 'Generating PDF…', 'Preparing document for sharing…');
+      const blob = await generatePDFBlob();
+      showGenOverlay(false);
+      if(blob){
+        const file = new File([blob], _lastPdfFilename, {type: 'application/pdf'});
+        if(navigator.canShare({files: [file]})){
+          await navigator.share({
+            files: [file],
+            title: document.getElementById('pdf-title')?.textContent || 'ACH Studio Document',
+          });
+          return;
+        }
+      }
+    } catch(e){
+      showGenOverlay(false);
+      if(e.name === 'AbortError') return; // user cancelled — do nothing
+      // Fall through to download
+    }
+  }
+
+  // Fallback: just download the PDF
+  await pdfDownload();
+  toast('✓ PDF saved to Downloads', 'gold');
+}
+
+// ── INSTALL PROMPT on settings ──
+function showInstallInstructions(){
+  const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  if(_deferredPrompt){
+    installPWA();
+  } else if(isIOS){
+    alert('To install:\n\n1. Tap the Share button (box with arrow) at the bottom of Safari\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" — ACH Studio will appear on your home screen!');
+  } else if(isAndroid){
+    alert('To install:\n\n1. Tap the ⋮ menu (three dots) in Chrome\n2. Tap "Add to Home screen" or "Install app"\n3. Tap "Install" — ACH Studio will appear on your home screen!');
+  } else {
+    alert('To install on desktop:\n\n1. Look for the install icon (⊕) in the browser address bar\n2. Or click ⋮ menu → "Install ACH Fashion Studio"');
+  }
 }
 </script>
 </body>
